@@ -1,0 +1,57 @@
+[
+  {
+    "slug": "tryhackme-cyber-security-101",
+    "title": "Cyber Security 101",
+    "issuer": "TryHackMe",
+    "date": "23 April 2026",
+    "category": "Learning path completion",
+    "alt": "TryHackMe Cyber Security 101 learning path completion certificate",
+    "previewPath": "/certifications/previews/tryhackme-cyber-security-101.webp",
+    "originalPath": "/certifications/originals/tryhackme-cyber-security-101.pdf",
+    "description": "Completed TryHackMe’s Cyber Security 101 learning path, covering foundational cybersecurity concepts through guided labs and hands-on practice."
+  },
+  {
+    "slug": "tryhackme-hacker-holidays",
+    "title": "Hacker Holidays",
+    "issuer": "TryHackMe",
+    "date": "13 August 2026",
+    "category": "Participation certificate",
+    "alt": "TryHackMe Hacker Holidays participation certificate",
+    "previewPath": "/certifications/previews/tryhackme-hacker-holidays.webp",
+    "originalPath": "/certifications/originals/tryhackme-hacker-holidays.jpg",
+    "description": "Participated in TryHackMe’s Hacker Holidays program, engaging in cybersecurity challenges and practical security-learning activities."
+  },
+  {
+    "slug": "indo-bhutan-security-training",
+    "title": "Indo–Bhutan Cyber Security Awareness Training Camp",
+    "issuer": "ASD Academy",
+    "date": "17 April 2026",
+    "category": "Training completion",
+    "alt": "ASD Academy Indo–Bhutan Cyber Security Awareness Training Camp completion certificate",
+    "previewPath": "/certifications/previews/indo-bhutan-security-training.webp",
+    "originalPath": "/certifications/originals/indo-bhutan-security-training.jpg",
+    "description": "Completed ASD Academy’s Indo–Bhutan Cyber Security Awareness Training Camp, a five-day program focused on security awareness and defensive practices."
+  },
+  {
+    "slug": "aws-cloud-foundations",
+    "title": "Cloud Foundations",
+    "issuer": "AWS Academy",
+    "date": "October 2025",
+    "category": "Course badge",
+    "alt": "AWS Academy Cloud Foundations course badge",
+    "previewPath": "/certifications/previews/aws-cloud-foundations.webp",
+    "originalPath": "/certifications/originals/aws-cloud-foundations-badge.png",
+    "description": "Completed the AWS Academy Cloud Foundations course and earned the course badge for introductory cloud concepts on AWS."
+  },
+  {
+    "slug": "cisco-introduction-to-cybersecurity",
+    "title": "Introduction to Cybersecurity",
+    "issuer": "Cisco Networking Academy",
+    "date": "April 2025",
+    "category": "Course badge",
+    "alt": "Cisco Networking Academy Introduction to Cybersecurity course badge",
+    "previewPath": "/certifications/previews/cisco-introduction-to-cybersecurity.webp",
+    "originalPath": "/certifications/originals/cisco-introduction-to-cybersecurity-badge.png",
+    "description": "Completed Cisco Networking Academy’s Introduction to Cybersecurity course badge, covering core security concepts and common threat awareness."
+  }
+]

@@ -1,0 +1,41 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+import Base from '../layouts/Base.astro';
+import TopBar from '../components/ui/TopBar.astro';
+import SoundToggle from '../components/ui/SoundToggle.astro';
+import Gate from '../components/scenes/Gate.astro';
+import TitleScene from '../components/scenes/TitleScene.astro';
+import OriginScene from '../components/scenes/OriginScene.astro';
+import TrainingScene from '../components/scenes/TrainingScene.astro';
+import Certifications from '../components/scenes/Certifications.astro';
+import MissionTabaani from '../components/scenes/MissionTabaani.astro';
+import MissionLeads from '../components/scenes/MissionLeads.astro';
+import MissionTalan from '../components/scenes/MissionTalan.astro';
+import MissionReport from '../components/scenes/MissionReport.astro';
+import SideQuests from '../components/scenes/SideQuests.astro';
+import PowerSheet from '../components/scenes/PowerSheet.astro';
+import Finale from '../components/scenes/Finale.astro';
+---
+
+<Base>
+  <Gate />
+  <TopBar />
+  <SoundToggle />
+  <main id="top">
+    <TitleScene />
+    <OriginScene />
+    <TrainingScene />
+    <Certifications />
+    <MissionTabaani />
+    <MissionLeads />
+    <MissionTalan />
+    <MissionReport />
+    <SideQuests />
+    <PowerSheet />
+    <Finale />
+  </main>
+  <script>
+    import { start } from '../scripts/main';
+    start();
+  </script>
+</Base>

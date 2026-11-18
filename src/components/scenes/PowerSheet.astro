@@ -1,0 +1,172 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// Chapter 5: speed lines rush in from the edges over the end of the map, the chapter title stamps on
+// their bright centre, then the camera pulls back and the burst shrinks into the panel of a character
+// file, like the profile pages at the back of a manga volume. In the middle
+// her panel bursts with speed lines and she steps out of it toward the reader: her hand, head and
+// hijab break over the ink frame. Around it, all her skills at once, one lettered column per group,
+// each with a rose seal on its signature skill. In a corner, three faces from her character sheet.
+import { Image } from 'astro:assets';
+import ChapterHead from '../ui/ChapterHead.astro';
+import Emph from '../ui/Emph.astro';
+import { person, powers as pw } from '../../data/story';
+
+import panel from '../../assets/frames/ch5-powersheet/panel.jpg';
+import ines from '../../assets/frames/ch5-powersheet/ines.png';
+
+const faceArt = import.meta.glob<{ default: ImageMetadata }>('../../assets/frames/ch5-powersheet/faces/*.png', { eager: true });
+const face = (name: string) => faceArt[`../../assets/frames/ch5-powersheet/faces/${name}.png`].default;
+const sides = [pw.groups.slice(0, 4), pw.groups.slice(4)];
+---
+
+<section class="power" id="power-sheet" data-scene="power" aria-labelledby="power-title">
+  <div class="panel power__rush" data-part="rush" aria-hidden="true">
+    <Image src={panel} alt="" widths={[832]} sizes="100vw" loading="lazy" />
+    <ChapterHead label={pw.label} title={pw.title} onPaper />
+  </div>
+  <div class="power__pin">
+    <header class="power__head">
+      <p class="tag">{pw.label}</p>
+      <h2 class="chapter-title power__title" id="power-title">{pw.title}</h2>
+      <p class="power__file"><b>{pw.file}</b> · {person.name}</p>
+      <p class="power__role"><Emph text={pw.role} /></p>
+    </header>
+
+    <ul class="power__faces" aria-label={pw.file}>
+      {pw.faces.map((f) => (
+        <li data-part="face">
+          <Image src={face(f.face)} alt={f.alt} widths={[180]} sizes="90px" loading="lazy" />
+          <span>{f.caption}</span>
+        </li>
+      ))}
+    </ul>
+
+    <div class="power__frame" data-part="frame">
+      <div class="panel power__panel" data-part="panel">
+        <Image src={panel} alt="" widths={[480, 832]} sizes="(max-width: 760px) 74vw, 32vw" loading="lazy" data-part="burst" />
+      </div>
+      <div class="power__out" data-part="out">
+        <Image class="power__ines" src={ines} alt={pw.panelAlt} widths={[600, 925]} sizes="(max-width: 760px) 108vw, 46vw" loading="lazy" data-part="ines" />
+      </div>
+    </div>
+
+    {sides.map((groups, s) => (
+      <div class:list={['power__side', `power__side--${s ? 'right' : 'left'}`]}>
+        {groups.map((g) => (
+          <section class="power__group" data-part="group" aria-label={g.title}>
+            <h3>{g.title}</h3>
+            <ul>
+              {g.skills.map((skill) => (
+                skill === g.star
+                  ? <li class="power__star" title={pw.star}>{skill}<i data-part="seal" aria-hidden="true"></i></li>
+                  : <li>{skill}</li>
+              ))}
+            </ul>
+          </section>
+        ))}
+        {s === 1 && <p class="power__community" data-part="group"><Emph text={pw.community} /></p>}
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .power { position: relative; background: var(--paper); color: var(--ink); overflow: clip; }
+
+  /* desktop: one page — title and faces on top, the panel in the middle, four groups on each side */
+  .power__pin {
+    position: relative; height: 100svh; padding: 92px var(--edge) 28px;
+    display: grid; gap: 0 clamp(28px, 3vw, 56px);
+    grid-template-columns: 1fr min(29vw, (100svh - 150px) * .73) 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "head frame faces" "left frame right";
+  }
+  /* the transition: the burst drawing over the whole screen, fixed, masked so the speed lines close in
+     from the edges (--r shrinks); then sized onto the panel by the script (left/top/width/height) */
+  .power__rush {
+    --r: 62vmax; /* just outside the screen corners */
+    position: fixed; z-index: 50; left: 0; top: 0; width: 100vw; height: 100svh; visibility: hidden;
+    pointer-events: none; /* decoration over the whole screen: it must never catch a HOLD or a DRAG */
+    -webkit-mask: radial-gradient(circle at 50% 50%, transparent var(--r), #000 calc(var(--r) + 14vmax));
+            mask: radial-gradient(circle at 50% 50%, transparent var(--r), #000 calc(var(--r) + 14vmax));
+  }
+  .power__rush :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+  .power__head { grid-area: head; display: grid; justify-items: start; gap: 10px; align-content: start; }
+  .power__title { font-size: clamp(52px, 5.6vw, 96px); }
+  .power__file { margin: 0; font: 800 12px/1.3 var(--font-text); letter-spacing: .24em; text-transform: uppercase; }
+  .power__file b { color: var(--rose-deep); }
+  .power__role { margin: 0; max-width: 40ch; font: 500 15px/1.45 var(--font-text); }
+  .power :global(em) { font-style: normal; font-weight: 800; color: var(--rose-deep); }
+
+  .power__faces { grid-area: faces; list-style: none; margin: 0; padding: 0; display: flex; justify-content: flex-end; gap: 14px; align-self: start; }
+  .power__faces li { width: 92px; display: grid; justify-items: center; gap: 6px; text-align: center; }
+  .power__faces :global(img) { width: 84px; height: auto; border: 2px solid var(--ink); border-radius: 50%; background: #fff; padding: 4px 4px 0; }
+  .power__faces span { font: 800 9.5px/1.3 var(--font-text); letter-spacing: .12em; text-transform: uppercase; }
+
+  /* the panel, and the cutout in a clipping box that starts on the panel's inner edge
+     and opens beyond it as he steps out — sized so face/hair stay in view at settle */
+  .power__frame { grid-area: frame; position: relative; align-self: center; width: 100%; aspect-ratio: 832 / 1138; }
+  .power__panel { inset: 0; }
+  .power__panel :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .power__out {
+    position: absolute; z-index: 2; top: 0; bottom: 0; left: -4%; width: 108%;
+    clip-path: inset(3px calc(15.5% + 3px) 3px calc(15.5% + 3px));
+  }
+  .power__ines {
+    position: absolute; left: 22%; bottom: 2%; width: 56%; height: auto; max-width: none;
+    max-height: 82%; object-fit: contain; object-position: 50% 0%;
+    transform-origin: 50% 100%;
+  }
+
+  .power__side { display: grid; align-content: center; gap: clamp(14px, 2.2svh, 26px); }
+  .power__side--left { grid-area: left; padding-right: clamp(56px, 7.5vw, 120px); } /* room for her hand once she is out */
+  .power__side--right { grid-area: right; }
+  .power__group h3 {
+    margin: 0 0 6px; font: 400 clamp(20px, 1.7vw, 26px)/1 var(--font-title);
+    border-bottom: 2px solid var(--ink); padding-bottom: 6px;
+  }
+  .power__group ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 0; }
+  .power__group li { font: 600 clamp(12.5px, .98vw, 15px)/1.6 var(--font-text); }
+  .power__group li + li::before { content: '·'; margin: 0 .45em; opacity: .45; }
+  /* the signature skill of the group: rose ink, circled by a rose seal stamped around it */
+  .power__star { position: relative; color: var(--rose-deep); font-weight: 800 !important; }
+  .power__star i {
+    position: absolute; left: -7px; right: -7px; top: -3px; bottom: -3px; pointer-events: none;
+    border: 2px solid var(--rose); border-radius: 50%; rotate: -4deg;
+  }
+  .power__star:not(:first-child) i { left: calc(.9em - 7px); } /* skip the separator dot */
+  .power__community { margin: 0; font: 500 clamp(12.5px, .98vw, 15px)/1.5 var(--font-text); }
+
+  /* short laptop screens: the same page, set tighter so it still fits one screen */
+  @media (min-width: 761px) and (max-height: 820px) {
+    .power__pin { padding-top: 80px; padding-bottom: 34px; grid-template-columns: 1fr min(27vw, (100svh - 130px) * .73) 1fr; }
+    .power__title { font-size: clamp(44px, 4.6vw, 72px); }
+    .power__head { gap: 6px; }
+    .power__role { font-size: 13px; }
+    .power__faces :global(img) { width: 64px; }
+    .power__faces li { width: 76px; }
+    .power__side { gap: 10px; }
+    .power__group h3 { font-size: 18px; margin-bottom: 4px; padding-bottom: 4px; }
+    .power__group li, .power__community { font-size: 12px; line-height: 1.5; }
+  }
+
+  /* phones: title, faces, the panel she steps out of, then the groups one under the other */
+  @media (max-width: 760px) {
+    .power__pin {
+      height: auto; padding: 96px var(--edge) 80px;
+      grid-template-columns: 1fr; grid-template-areas: "head" "faces" "frame" "left" "right";
+      gap: 28px;
+    }
+    .power__faces { justify-content: flex-start; }
+    .power__frame { width: 74vw; justify-self: center; margin: 40px 0 8px; }
+    .power__out { left: -4%; width: 108%; }
+    .power__ines { left: 16%; width: 68%; max-height: 96%; }
+    .power__side, .power__side--left { gap: 22px; padding: 0; }
+    .power__group li, .power__community { font-size: 15px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .power__out { clip-path: inset(-18% -7% 3px -7%); }
+  }
+</style>

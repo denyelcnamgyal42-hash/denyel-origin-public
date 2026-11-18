@@ -1,0 +1,75 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+import '../styles/global.css';
+import { meta, person, seo } from '../data/story';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string; // the share card, public/og/
+  imageAlt?: string;
+  locked?: boolean; // the story waits behind its gate; other pages scroll at once
+  cursor?: boolean; // the story's ink-dot cursor; other pages keep the system cursor
+}
+const { title = meta.title, description = meta.description, image = meta.image, imageAlt = meta.imageAlt, locked = true, cursor = true } = Astro.props;
+// Absolute URLs only when `site` is set (PUBLIC_SITE_URL or Vercel). Never bake localhost/example.com.
+const hasSite = Boolean(Astro.site);
+const pageHref = hasSite ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.pathname;
+const cardHref = hasSite ? new URL(image, Astro.site).href : image;
+const homeHref = hasSite ? new URL('/', Astro.site).href : '/';
+const personImage = hasSite ? new URL(meta.image, Astro.site).href : meta.image;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': `${homeHref}#denyel`,
+      name: person.name,
+      url: homeHref,
+      image: personImage,
+      jobTitle: seo.jobTitle,
+      alumniOf: { '@type': 'CollegeOrUniversity', name: seo.school },
+      address: { '@type': 'PostalAddress', addressLocality: seo.city, addressCountry: seo.country },
+      knowsAbout: seo.knowsAbout,
+      sameAs: [person.links.linkedin, person.links.github].filter((u) => u.startsWith('http')),
+    },
+    { '@type': 'WebSite', '@id': `${homeHref}#site`, url: homeHref, name: 'DENYEL — ORIGIN', author: { '@id': `${homeHref}#denyel` } },
+    { '@type': 'ProfilePage', url: pageHref, name: title, description, mainEntity: { '@id': `${homeHref}#denyel` } },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- security: the site only loads its own files (scripts, fonts, images); styles may be inline (Astro and the
+         style="--x" props). GitHub Pages can't send headers, so the policy rides in the page. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="author" content={person.name} />
+    <link rel="canonical" href={pageHref} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- person / site structured data for search engines (CSP does not apply; nothing executes) -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={person.name} />
+    <meta property="og:url" content={pageHref} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={cardHref} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class:list={{ 'is-locked': locked }}>
+    <div class="grain" aria-hidden="true"></div>
+    {cursor && <div class="cursor" aria-hidden="true"></div>}
+    <slot />
+  </body>
+</html>

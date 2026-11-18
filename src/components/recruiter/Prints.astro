@@ -1,0 +1,86 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// A stack of photo prints: her photos or screenshots, each a button (behind: it comes to the front; in front:
+// it opens large in the Viewer). A group photo can carry a rose "that's me" circle. With no picture yet, one
+// placeholder print says which picture goes there. Behaviour: scripts/recruiter/shots.ts.
+import { Image, getImage } from 'astro:assets';
+import { recruiter as r } from '../../data/story';
+
+export interface Shot {
+  src: ImageMetadata;
+  caption: string;
+  alt: string;
+  me?: [number, number]; // where she is in a group photo, in % of the print
+  fit?: 'contain'; // show a diagram whole instead of filling the print
+  focus?: string; // object-position of the crop
+}
+interface Props { shots: Shot[]; empty?: string }
+const { shots, empty } = Astro.props;
+const p = r.prints;
+const large = await Promise.all(shots.map(async (s) => (await getImage({ src: s.src, width: 1400 })).src));
+---
+
+<div class="shots" data-shots data-thumb>
+  {shots.map((s, k) => (
+    <figure class:list={['shot', s.fit && 'shot--contain']} data-pos={k} style={s.focus && `--focus:${s.focus}`}>
+      <button type="button" class="shot__open" data-open={large[k]} data-alt={s.alt} data-caption={s.caption} aria-label={`${p.enlarge}: ${s.caption}`}></button>
+      <span class="shot__frame">
+        <Image src={s.src} alt={s.alt} widths={[300, 600]} sizes="(max-width: 760px) 230px, 270px" draggable="false" />
+        {s.me && (
+          <span class="shot__me" style={`--x:${s.me[0]}%;--y:${s.me[1]}%`} aria-hidden="true">
+            <svg viewBox="0 0 60 60"><path d="M34 6C18 3 5 15 6 31c1 15 14 24 28 22 14-2 21-14 19-27C51 13 41 5 27 7" /></svg>
+            <span class="hand">{p.me}</span>
+          </span>
+        )}
+      </span>
+      <figcaption class="hand">{s.caption}</figcaption>
+    </figure>
+  ))}
+  {!shots.length && (
+    <figure class="shot shot--empty" data-pos="0">
+      <span class="shot__frame"><span class="shot__slot">{empty}</span></span>
+      <figcaption class="hand">{p.coming} ✎</figcaption>
+    </figure>
+  )}
+  {shots.length > 1 && <button type="button" class="shots__next hand" data-shots-next>{p.next} ↻</button>}
+</div>
+
+<style>
+  .shots { position: relative; width: 280px; aspect-ratio: 4 / 3.05; }
+  .shot {
+    position: absolute; inset: 0; margin: 0; padding: 8px 8px 0; background: #fff;
+    box-shadow: 0 1px 1px rgba(20, 17, 19, .12), 0 10px 18px -10px rgba(20, 17, 19, .5);
+    transition: rotate .45s cubic-bezier(.3, 1.3, .5, 1), translate .45s cubic-bezier(.3, 1.3, .5, 1), scale .45s;
+  }
+  .shot[data-pos='0'] { z-index: 2; rotate: -2deg; }
+  .shot[data-pos='1'] { z-index: 1; rotate: 6deg; translate: 14px -10px; scale: .96; }
+  .shot[data-pos='1']:hover { translate: 20px -16px; }
+  .shot__frame { position: relative; display: block; aspect-ratio: 16 / 10; background: #ece6da; }
+  .shot__frame :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--focus, 50% 50%); }
+  .shot--contain .shot__frame { background: #fff; }
+  .shot--contain .shot__frame :global(img) { object-fit: contain; }
+  .shot figcaption { padding: 6px 2px 8px; font-size: 18px; line-height: 1; color: var(--ink); text-align: center; }
+  .shot__slot { display: grid; place-items: center; height: 100%; padding: 14px; outline: 1.5px dashed rgba(20, 17, 19, .3); outline-offset: -7px; text-align: center; font: 600 13px/1.35 var(--font-text); color: var(--muted); }
+  .shot--empty figcaption { color: var(--muted); }
+
+  /* the whole print is a button: behind, it comes to the front; in front, it opens big */
+  .shot__open { position: absolute; inset: 0; z-index: 2; padding: 0; border: 0; background: none; cursor: pointer; }
+  .shot[data-pos='0'] .shot__open { cursor: zoom-in; }
+  .shot__open:focus-visible { outline: 3px solid var(--rose); outline-offset: 3px; }
+
+  /* "that's me": a rose pen circle around her in a group photo, drawn as the print comes to the front */
+  .shot__me { position: absolute; left: var(--x); top: var(--y); width: 21%; aspect-ratio: 1; translate: -50% -50%; pointer-events: none; }
+  .shot__me svg { width: 100%; height: 100%; overflow: visible; fill: none; stroke: var(--rose-deep); stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 190; }
+  /* the words sit above the print, on its white edge, so no one's face is covered */
+  .shot__me span { position: absolute; left: 70%; top: -38%; font-size: 19px; line-height: 1; color: var(--rose-deep); white-space: nowrap; rotate: -6deg; }
+  .shot[data-pos='0'] .shot__me svg { animation: draw-me .8s .2s ease-out both; }
+  .shot:not([data-pos='0']) .shot__me { opacity: 0; }
+  @keyframes draw-me { from { stroke-dashoffset: 190; } to { stroke-dashoffset: 0; } }
+
+  .shots__next { position: absolute; z-index: 3; right: -16px; bottom: -30px; padding: 4px 8px; border: 0; background: none; cursor: pointer; font-size: 20px; color: var(--rose-deep); rotate: -3deg; }
+  .shots__next:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .shots__next:focus-visible { outline: 3px solid var(--rose); outline-offset: 2px; border-radius: 6px; }
+
+  @media (max-width: 760px) { .shots { width: 240px; } }
+  @media (prefers-reduced-motion: reduce) { .shot { transition: none; } .shot[data-pos='0'] .shot__me svg { animation: none; } }
+</style>

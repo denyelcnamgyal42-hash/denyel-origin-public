@@ -1,0 +1,39 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+import InkBackground from '../ui/InkBackground.astro';
+---
+
+<div class="gate" data-gate role="dialog" aria-label="Enter the story">
+  <InkBackground eager />
+  <div class="gate__inner">
+    <p class="gate__vol">DENYEL — ORIGIN</p>
+    <p class="gate__count"><span data-part="count">0</span>%</p>
+    <div class="gate__bar"><span data-part="bar"></span></div>
+    <div class="gate__choices" data-part="choices">
+      <button class="btn" data-enter="sound">Enter with sound</button>
+      <button class="btn btn--ghost" data-enter="silent">Enter in silence</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .gate {
+    position: fixed; inset: 0; z-index: 80;
+    display: grid; place-items: center;
+    background: var(--navy); color: var(--paper);
+  }
+  .gate__inner { position: relative; text-align: center; padding: 16px; width: min(420px, 100%); }
+  .gate__vol { font-family: var(--font-title); font-size: clamp(16px, 3.2vw, 22px); letter-spacing: .16em; margin: 0 0 28px; }
+  .gate__count { font-family: var(--font-title); font-size: 56px; margin: 0; }
+  .gate__bar { height: 2px; background: rgba(243, 239, 231, .2); margin: 14px 0 30px; }
+  .gate__bar span { display: block; height: 100%; width: 0; background: var(--paper); }
+  .gate__choices { display: flex; flex-direction: column; gap: 12px; align-items: center; visibility: hidden; }
+
+  .btn {
+    font: 800 13px/1 var(--font-text); letter-spacing: .12em; text-transform: uppercase;
+    background: var(--paper); color: var(--ink);
+    border: 2px solid var(--paper); padding: 16px 26px; min-width: 240px;
+  }
+  .btn--ghost { background: transparent; color: var(--paper); }
+  .btn:hover { background: var(--rose); border-color: var(--rose); color: var(--ink); }
+</style>

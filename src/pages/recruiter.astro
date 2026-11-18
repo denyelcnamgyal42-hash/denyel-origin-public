@@ -1,0 +1,41 @@
+---
+// DENYEL — ORIGIN · Recruiter mode (editorial web CV)
+import Base from '../layouts/Base.astro';
+import RecruiterBar from '../components/recruiter/RecruiterBar.astro';
+import Hero from '../components/recruiter/Hero.astro';
+import Experience from '../components/recruiter/Experience.astro';
+import Projects from '../components/recruiter/Projects.astro';
+import Skills from '../components/recruiter/Skills.astro';
+import Education from '../components/recruiter/Education.astro';
+import Training from '../components/recruiter/Training.astro';
+import Achievements from '../components/recruiter/Achievements.astro';
+import Leadership from '../components/recruiter/Leadership.astro';
+import Contact from '../components/recruiter/Contact.astro';
+import Viewer from '../components/recruiter/Viewer.astro';
+import { recruiter as r } from '../data/story';
+import '../styles/recruiter.css';
+
+const showTraining = r.training.items.length > 0;
+const showAchievements = r.achievements.items.length > 0;
+const showLeadership = (r.leadership.features?.length ?? r.leadership.items?.length ?? 0) > 0;
+---
+
+<Base title={r.meta.title} description={r.meta.description} image={r.meta.image} imageAlt={r.meta.imageAlt} locked={false} cursor={false}>
+  <RecruiterBar />
+  <main class="recruiter-main">
+    <Hero />
+    <Experience />
+    <Projects />
+    <Skills />
+    <Education />
+    {showTraining && <Training />}
+    {showAchievements && <Achievements />}
+    {showLeadership && <Leadership />}
+    <Contact />
+  </main>
+  <Viewer />
+  <script>
+    import { start } from '../scripts/recruiter/main';
+    start();
+  </script>
+</Base>

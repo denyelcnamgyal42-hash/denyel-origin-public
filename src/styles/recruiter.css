@@ -1,0 +1,249 @@
+/* DENYEL — ORIGIN · recruiter colour edition (original palette; not VOL.01 identity) */
+/* Sticky-note / sticker UI kept; colours remapped to navy / electric blue family. */
+@import '@fontsource/caveat/latin-600.css';
+
+:root {
+  --line: #121820;
+  --mustard: #3ec6ff;
+  --peri: #9ec9ff;
+  --lilac: #b8c4ff;
+  --rose-light: #7ddcff;
+  --sage: #3d6b8a;
+  --sage-light: #a8c8dc;
+  --rose-wash: rgba(0, 183, 255, .14);
+  --card: #f7fafc;
+  --tape: rgba(180, 198, 220, .82);
+  --muted: #5a6570;
+
+  --font-hand: 'Caveat', 'Segoe Print', cursive;
+  --font-mono: ui-monospace, 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  --bar-h: 64px;
+}
+
+html { scroll-padding-top: calc(var(--bar-h) + 16px); }
+
+/* Recruiter section rhythm — scannable spacing without sparse voids */
+.recruiter-main > section {
+  --sec-pad-y: clamp(48px, 6vw, 72px);
+  --edge: clamp(16px, 4vw, 48px);
+  padding-block: var(--sec-pad-y);
+  padding-inline: var(--edge);
+}
+.recruiter-main > section#about {
+  padding-inline: 0;
+  padding-block: 0;
+}
+.recruiter-main > section + section {
+  border-top: 1px solid rgba(20, 17, 19, .1);
+}
+
+/* the white die-cut edge of a sticker (works on transparent PNGs and inline SVG alike) */
+.die {
+  filter: drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff) drop-shadow(0 1.5px 0 #fff)
+    drop-shadow(0 -1.5px 0 #fff) drop-shadow(0 2px 3px rgba(20, 17, 19, .25));
+}
+/* a sticker that already has its white edge (the generated ones): only the shadow */
+.lift { filter: drop-shadow(0 3px 4px rgba(20, 17, 19, .22)); }
+
+.hand { font-family: var(--font-hand); font-weight: 600; }
+.label {
+  font: 700 11px/1.2 var(--font-mono);
+  letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+}
+
+/* a highlighter stroke behind a word (rose by default; --marker for another colour). Inside .marked, every <em> gets one */
+.marker, .marked em {
+  font-style: normal;
+  font-weight: 700; padding: 0 4px; margin: 0 -1px;
+  background: linear-gradient(176deg, transparent 46%, var(--marker, rgba(0, 183, 255, .45)) 47%, var(--marker, rgba(0, 183, 255, .45)) 90%, transparent 91%);
+  border-radius: 3px;
+}
+.marker--mustard { --marker: rgba(62, 198, 255, .5); }
+.marker--peri { --marker: rgba(158, 201, 255, .9); }
+
+/* BUTTONS. Ink tag: the story's black label, for "go back to the ink" (Story, Menu) */
+.btn-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font: 800 11px/1 var(--font-text); letter-spacing: .24em; text-transform: uppercase;
+  padding: 10px 13px 10px 12px; border: 0;
+  background: var(--ink); color: var(--paper); text-decoration: none; cursor: pointer;
+  rotate: -2deg; transition: rotate .25s, background .25s, translate .25s;
+}
+.btn-tag:hover, .btn-tag:focus-visible { background: var(--rose-deep); color: var(--paper); rotate: 0deg; translate: 0 -2px; }
+
+/* Sticker button: a die-cut sticker you press (CV, Reset, Pet, Nap…). A slightly uneven shape, an ink
+   outline, a flat palette colour; on hover it lifts and its corner peels up */
+.btn-sticker {
+  position: relative; display: inline-flex; align-items: center; gap: 7px;
+  font: 800 12px/1 var(--font-text); letter-spacing: .08em; text-transform: uppercase;
+  padding: 10px 15px; color: var(--ink); text-decoration: none; cursor: pointer;
+  background: var(--fill, var(--card));
+  border: 1.6px solid var(--line); border-radius: 13px 17px 12px 16px / 16px 12px 17px 13px;
+  filter: drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff) drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff) drop-shadow(0 2px 2px rgba(20, 17, 19, .2));
+  rotate: var(--tilt, 1.5deg); transition: rotate .25s, translate .25s, scale .25s;
+}
+.btn-sticker::after { /* the corner that peels on hover */
+  content: ''; position: absolute; right: -1.6px; bottom: -1.6px; width: 0; height: 0;
+  background: linear-gradient(135deg, var(--paper) 50%, #fff 50%);
+  border-radius: 0 0 12px 0; box-shadow: -1px -1px 2px rgba(20, 17, 19, .25);
+  transition: width .2s, height .2s;
+}
+.btn-sticker:hover, .btn-sticker:focus-visible { rotate: 0deg; translate: 0 -2px; scale: 1.04; }
+.btn-sticker:hover::after, .btn-sticker:focus-visible::after { width: 11px; height: 11px; }
+.btn-sticker--mustard { --fill: var(--mustard); }
+.btn-sticker--rose { --fill: var(--rose-light); }
+.btn-sticker--sage { --fill: var(--sage-light); }
+.btn-sticker--peri { --fill: var(--peri); }
+.btn-sticker--lilac { --fill: var(--lilac); }
+.btn-sticker :is(svg) { width: 18px; height: 18px; flex: none; }
+
+/* Go button: a link that does something (a demo, the code): an icon, a verb, an arrow for "new tab".
+   Solid black for the main one, outlined for the next */
+.go {
+  display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 16px;
+  font: 700 14.5px/1 var(--font-text); text-decoration: none; color: var(--ink);
+  background: #fff; border: 2px solid var(--ink); border-radius: 8px;
+  transition: translate .15s, background .2s, color .2s;
+}
+.go--main { background: var(--ink); color: var(--paper); }
+.go .icon { width: 19px; height: 19px; }
+.go__arrow { font-size: 13px; opacity: .7; }
+.go:hover, .go:focus-visible { translate: 0 -2px; }
+.go--main:hover, .go--main:focus-visible { background: var(--rose-deep); border-color: var(--rose-deep); }
+.go--second:hover, .go--second:focus-visible { background: var(--ink); color: var(--paper); }
+.go:focus-visible { outline: 3px solid var(--rose); outline-offset: 3px; }
+
+/* a sticky note: square-ish paper, a strip of washi tape on top, a slight tilt */
+.note {
+  position: relative;
+  padding: 26px 22px 18px;
+  background: var(--note, var(--mustard));
+  box-shadow: 0 10px 18px -12px rgba(20, 17, 19, .45), 0 1px 0 rgba(20, 17, 19, .06);
+  rotate: var(--tilt, 0deg);
+}
+.note::before {
+  content: ''; position: absolute; top: -12px; left: 50%;
+  width: 64px; height: 24px; margin-left: -32px;
+  background: var(--tape);
+  rotate: calc(var(--tilt, 0deg) * -1.4);
+  clip-path: polygon(3% 0, 97% 4%, 100% 50%, 96% 100%, 2% 96%, 0 48%);
+}
+.note--mustard { --note: var(--mustard); }
+.note--peri { --note: var(--peri); }
+.note--lilac { --note: var(--lilac); }
+.note--rose { --note: var(--rose-light); }
+
+/* a card reached from a link (the skills' "used in"): it is already in place (its folder open) and hops once so the eye finds it */
+:is(li, .stack__card):target { animation: found .7s cubic-bezier(.3, 1.4, .5, 1) .3s; }
+@keyframes found { 40% { translate: 0 -12px; } }
+
+/* a little paper stamp popped by a click on empty paper (scripts/recruiter/stamps.ts) */
+.stamps { position: fixed; inset: 0; z-index: 70; overflow: hidden; pointer-events: none; }
+.stamp {
+  position: absolute; width: var(--size, 34px); height: var(--size, 34px); translate: -50% -50%;
+  animation: stamp-pop 1.5s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+.stamp svg, .stamp img { display: block; width: 100%; height: 100%; overflow: visible; object-fit: contain; }
+@keyframes stamp-pop {
+  0% { opacity: 0; transform: rotate(var(--rot)) scale(.35); }
+  16% { opacity: 1; transform: rotate(var(--rot)) scale(1.15); }
+  28% { transform: rotate(var(--rot)) scale(1); }
+  70% { opacity: 1; transform: rotate(var(--rot)) scale(1) translateY(0); }
+  100% { opacity: 0; transform: rotate(var(--rot)) scale(.92) translateY(-10px); }
+}
+
+/* something you can peel off and move (scripts/recruiter/peel.ts) */
+[data-peel] { cursor: grab; touch-action: none; user-select: none; -webkit-user-drag: none; }
+[data-peel].is-held { cursor: grabbing; z-index: 40; }
+
+/* folders stacked on each other (Experience, Projects): a row of tabs, one card open, the others' tabs behind it.
+   The cards share one grid cell, so the stack keeps the height of the tallest and nothing below jumps (folders.ts) */
+.stack { max-width: 1120px; margin: 0 auto; transition: translate .7s cubic-bezier(.3, 1.3, .5, 1), opacity .5s; }
+.can-land .stack:not(.is-in) { opacity: 0; translate: 0 50px; }
+.stack__tabs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; width: fit-content; padding: 0 20px; }
+.stack__tab {
+  display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 176px; height: 52px; padding: 0 18px;
+  margin-bottom: -1.5px; position: relative; background: #e9e3d8; color: var(--muted); cursor: pointer;
+  border: 1.5px solid rgba(20, 17, 19, .12); border-bottom: 0; border-radius: 14px 14px 0 0;
+  font: 800 15px/1.15 var(--font-text); transition: background .25s, color .25s, translate .25s;
+}
+.stack__tab:hover { translate: 0 -3px; }
+.stack__tab img { width: auto; max-width: 100%; height: 24px; opacity: .6; transition: opacity .25s; }
+.stack__tab[aria-selected='true'] { z-index: 2; background: var(--card); color: var(--ink); translate: none; cursor: default; }
+.stack__tab[aria-selected='true'] img { opacity: 1; }
+.stack__tab:focus-visible { outline: 3px solid var(--rose); outline-offset: -3px; }
+.stack__cards { display: grid; position: relative; z-index: 1; }
+.stack__card {
+  grid-area: 1 / 1; display: grid; grid-template-columns: minmax(0, 46%) minmax(0, 1fr); gap: 8px 26px;
+  padding: 18px; background: var(--card); border: 1.5px solid rgba(20, 17, 19, .12); border-radius: 18px;
+  box-shadow: 0 18px 30px -22px rgba(20, 17, 19, .5);
+}
+.stack__card:not(.is-open) { visibility: hidden; }
+.stack__card.is-open { animation: stack-open .45s cubic-bezier(.2, .8, .2, 1); }
+@keyframes stack-open { from { opacity: 0; translate: 0 10px; } }
+.stack__card > :first-child { position: relative; height: auto; min-height: 0; align-self: start; }
+
+@media (max-width: 900px) {
+  .stack__card { grid-template-columns: minmax(0, 1fr); align-content: start; }
+  .stack__card > :first-child { min-height: 0; }
+}
+@media (max-width: 760px) {
+  .stack__tabs { width: auto; gap: 4px; padding: 0 8px; overflow-x: auto; }
+  .stack__tab { min-width: 0; height: 50px; padding: 0 8px; font-size: 12px; text-align: center; }
+  .stack__tab img { height: 18px; }
+  .stack__card { padding: 12px; border-radius: 16px; }
+}
+
+/* a folder card (Education, Community): a tab with the logo and a short name, a picture (prints + a sticker on the
+   corner), a title, one key line and the rest under "Read more". The cards of a row are the same size */
+.folder { display: flex; flex-direction: column; transition: translate .7s cubic-bezier(.3, 1.3, .5, 1), opacity .5s; }
+.folder:nth-child(2) { transition-delay: .1s; }
+.folder:nth-child(3) { transition-delay: .2s; }
+.can-land .folder:not(.is-in) { opacity: 0; translate: 0 50px; }
+.folder__tab {
+  align-self: flex-start; display: flex; align-items: center; gap: 10px; min-width: 176px; height: 58px; padding: 0 18px; margin: 0 0 -1.5px 20px;
+  position: relative; z-index: 1; background: var(--card);
+  border: 1.5px solid rgba(20, 17, 19, .12); border-bottom: 0; border-radius: 14px 14px 0 0;
+}
+.folder__logo { width: auto; height: 38px; }
+.folder__short { font: 800 16px/1 var(--font-text); letter-spacing: .04em; color: var(--ink); }
+.folder__card {
+  flex: 1; display: flex; flex-direction: column; padding: 16px; background: var(--card);
+  border: 1.5px solid rgba(20, 17, 19, .12); border-radius: 18px;
+  box-shadow: 0 18px 30px -22px rgba(20, 17, 19, .5);
+}
+.folder__picture { position: relative; display: grid; place-items: center end; height: 300px; padding: 18px 24px 34px 18px; border-radius: 12px; background: #efe9de; }
+.folder__sticker { position: absolute; z-index: 3; left: 6px; bottom: 6px; margin: 0; display: grid; justify-items: center; gap: 2px; }
+.folder__sticker img { width: 92px; height: auto; rotate: -8deg; transition: rotate .35s, scale .35s; }
+.folder__picture:hover .folder__sticker img { rotate: 2deg; scale: 1.06; }
+.folder__sticker figcaption { max-width: 120px; font-size: 17px; line-height: 1; color: var(--muted); text-align: center; rotate: -4deg; }
+
+.folder__text { flex: 1; display: flex; flex-direction: column; align-items: flex-start; padding: 22px 8px 6px; }
+.folder__title { margin: 0; font: 400 clamp(25px, 2.2vw, 30px)/1.08 var(--font-title); }
+.folder__track { margin: 10px 0 0; font: 800 15px/1.2 var(--font-text); }
+.folder__line { margin: 10px 0 18px; font: 600 14px/1.45 var(--font-text); color: var(--muted); }
+.folder__key { margin: 0 0 12px; font: 600 15px/1.5 var(--font-text); }
+.folder__key em, .folder__more em { --marker: rgba(231, 169, 48, .5); }
+.folder__more { margin: 0 0 20px; }
+.folder__more summary { width: fit-content; cursor: pointer; font: 700 14px/1.4 var(--font-text); color: var(--rose-deep); }
+.folder__more summary:focus-visible { outline: 3px solid var(--rose); outline-offset: 2px; border-radius: 4px; }
+.folder__more ul { display: grid; gap: 8px; margin: 10px 0 0; padding: 0 0 0 18px; font: 500 14.5px/1.5 var(--font-text); }
+.folder__more li::marker { color: var(--rose-deep); }
+.folder__go { margin-top: auto; }
+
+@media (max-width: 760px) {
+  .folder__card { padding: 12px; border-radius: 16px; }
+  .folder__picture { height: 280px; padding: 18px 20px 34px 18px; }
+  .folder__sticker img { width: 76px; }
+  .folder__sticker figcaption { font-size: 15px; max-width: 96px; }
+  .folder__text { padding: 20px 6px 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folder { transition: none; }
+  :is(li, .stack__card):target, .stack__card.is-open { animation: none; }
+  .stack { transition: none; }
+  .stamp { animation: stamp-fade 1.5s forwards; transform: rotate(var(--rot)); }
+  @keyframes stamp-fade { 0%, 60% { opacity: 1; } 100% { opacity: 0; } }
+}

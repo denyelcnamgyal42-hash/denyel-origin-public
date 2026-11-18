@@ -1,0 +1,163 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+import { Image } from 'astro:assets';
+import Caption from '../ui/Caption.astro';
+import ChapterHead from '../ui/ChapterHead.astro';
+import HoldButton from '../ui/HoldButton.astro';
+import InkBackground from '../ui/InkBackground.astro';
+import InkWipe from '../ui/InkWipe.astro';
+import { training } from '../../data/story';
+
+import arrival from '../../assets/frames/ch2-training/arrival.jpg';
+import night from '../../assets/frames/ch2-training/night.jpg';
+import workshop from '../../assets/frames/ch2-training/workshop.jpg';
+import rack from '../../assets/frames/ch2-training/rack.jpg';
+import sunrise from '../../assets/frames/ch2-training/sunrise.jpg';
+import speedlines from '../../assets/frames/ch2-training/speedlines.jpg';
+import calm from '../../assets/frames/ch2-training/power-calm.jpg';
+import burst from '../../assets/frames/ch2-training/power-burst.jpg';
+
+// living zones of the power-up (fractions of the image), animated by fx/living.ts:
+// calm, her hijab barely breathes; powered up, the wind takes both ends of it and the hem; her face never moves
+const live = {
+  calm: [
+    { kind: 'cloth', box: [0.22, 0.3, 0.78, 0.72], anchor: [0.5, 0.28], amp: 0.006 },
+    { kind: 'cloth', box: [0.3, 0.8, 0.7, 1], anchor: [0.5, 0.72], amp: 0.008 },
+    { kind: 'still', box: [0.36, 0.08, 0.66, 0.33] },
+  ],
+  burst: [
+    { kind: 'cloth', box: [-0.1, 0.24, 0.38, 0.55], anchor: [0.42, 0.33], amp: 0.03 },
+    { kind: 'cloth', box: [0.6, 0.02, 1.05, 0.47], anchor: [0.6, 0.33], amp: 0.03 },
+    { kind: 'cloth', box: [0.52, 0.68, 0.97, 1], anchor: [0.6, 0.64], amp: 0.02 },
+    { kind: 'still', box: [0.36, 0.06, 0.64, 0.33] },
+  ],
+};
+
+const c = training.captions;
+---
+
+<section class="scene training" id="training" data-scene="training" aria-label="Chapter 2: The Training Arc">
+  <InkBackground fixed />
+  <div class="scene__pin">
+    <div class="training__stage" data-part="stage">
+      <div class="panel training__arrival" data-part="arrival">
+        <div class="panel__cam" data-part="cam">
+          <Image src={arrival} alt="Arriving at GCIT for the training arc" widths={[960, 1584, 1920]} sizes="90vw" loading="eager" />
+        </div>
+      </div>
+
+      <div class="panel training__night" data-part="night" data-depth="-8">
+        <Image src={night} alt="Night coding panel — training arc" widths={[700, 921]} sizes="50vw" />
+      </div>
+      <div class="panel training__workshop" data-part="workshop" data-depth="14">
+        <Image src={workshop} alt="AI and data workshop panel — training arc" widths={[640, 946]} sizes="38vw" />
+      </div>
+      <div class="panel training__rack" data-part="rack" data-depth="22">
+        <Image src={rack} alt="Systems and cybersecurity interest panel — training arc" widths={[480, 1024]} sizes="30vw" />
+      </div>
+      <div class="panel training__sunrise" data-part="sunrise" data-depth="-12">
+        <Image src={sunrise} alt="Sunrise after training" widths={[800, 1584]} sizes="56vw" />
+      </div>
+
+      <div class="training__power" data-part="power">
+        <Image class="layer ink-layer training__lines" data-part="lines" src={speedlines} alt="" widths={[1024, 1920]} sizes="100vw" />
+        <div class="training__glow" data-part="glow" aria-hidden="true"></div>
+        <div class="training__hero ink-layer" data-part="hero">
+          <!-- calm + burst share one box so the hold crossfade keeps the body locked -->
+          <div class="layer training__pose" data-part="calm" data-live={JSON.stringify(live.calm)}>
+            <Image src={calm} alt="Denyel calm before the training power-up" widths={[611, 1222]} sizes="40vw" />
+          </div>
+          <div class="layer training__pose" data-part="burst" data-live={JSON.stringify(live.burst)}>
+            <Image src={burst} alt="Denyel powered up after hold-to-train" widths={[613, 1226]} sizes="40vw" />
+          </div>
+        </div>
+      </div>
+
+      <Caption text={c.arrival} class="training__cap training__cap--arrival" data-caption="arrival" />
+      <Caption text={c.nights} class="training__cap training__cap--nights" data-caption="nights" />
+      <Caption text={c.network} class="training__cap training__cap--network" data-caption="network" />
+      <Caption text={c.sunrise} class="training__cap training__cap--sunrise" data-caption="sunrise" />
+      <Caption text={c.power} class="training__cap training__cap--power" data-caption="power" />
+
+      <div class="overlay speed" data-part="speed" aria-hidden="true"></div>
+      <HoldButton name="train" label="Hold<br/>to train" hint={training.hold} class="training__hold" />
+    </div>
+
+    <InkWipe />
+
+    <ChapterHead label={training.label} title={training.title} />
+  </div>
+</section>
+
+<style>
+  .training { clip-path: inset(0); }
+  .training__stage { position: absolute; inset: 0; background: var(--paper); color: var(--ink); }
+
+  .training__arrival { left: 7vw; right: 7vw; top: 13vh; bottom: 7vh; }
+  .training__night { left: 4vw; top: 14vh; width: 50vw; aspect-ratio: 921 / 446; z-index: 2; }
+  .training__workshop { right: 4vw; top: 11vh; width: 38vw; aspect-ratio: 946 / 710; z-index: 3; }
+  .training__rack { right: 9vw; bottom: 5vh; width: 27vw; aspect-ratio: 1; z-index: 4; }
+  .training__sunrise { left: 50%; top: 50%; width: 58vw; aspect-ratio: 1584 / 672; translate: -50% -50%; z-index: 5; }
+
+  .training__power { position: absolute; inset: 0; }
+  /* Speedlines stay dramatic at the rim; face/torso stay readable through a soft clear window */
+  .training__lines {
+    opacity: 0.78;
+    -webkit-mask-image: radial-gradient(ellipse 46% 52% at 50% 40%, transparent 0%, transparent 52%, rgba(0, 0, 0, 0.55) 68%, #000 84%);
+            mask-image: radial-gradient(ellipse 46% 52% at 50% 40%, transparent 0%, transparent 52%, rgba(0, 0, 0, 0.55) 68%, #000 84%);
+    transform-origin: 50% 42%;
+  }
+  .training__power.is-burst .training__lines { opacity: 0.95; }
+  .training__glow {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0;
+    background:
+      radial-gradient(ellipse 38% 46% at 50% 42%, rgba(0, 183, 255, 0.28), transparent 70%),
+      radial-gradient(ellipse 70% 60% at 50% 55%, rgba(20, 144, 255, 0.1), transparent 75%);
+    mix-blend-mode: screen;
+  }
+  .training__hero {
+    position: absolute; left: 50%; bottom: 0; z-index: 2; height: 88%; aspect-ratio: 611 / 663; translate: -50% 0;
+    /* soft edges: the drawing's own frame melts into the speed lines */
+    -webkit-mask: radial-gradient(ellipse 62% 72% at 50% 52%, #000 62%, transparent 92%);
+            mask: radial-gradient(ellipse 62% 72% at 50% 52%, #000 62%, transparent 92%);
+  }
+  .training__pose { position: absolute; inset: 0; transform-origin: 50% 88%; }
+  .training__hero :global(img),
+  .training__hero :global(canvas) {
+    display: block; width: 100%; height: 100%; object-fit: contain; object-position: bottom center;
+  }
+
+  /* caption positions on large screens; phones use the shared rule in comic.css */
+  @media (min-width: 761px) {
+    .training :global(.training__cap--arrival),
+    .training :global(.training__cap--nights) { left: 7vw; bottom: 8vh; }
+    .training :global(.training__cap--network) { left: 8vw; top: 52vh; }
+    .training :global(.training__cap--sunrise) { left: 50%; bottom: 12vh; translate: -50% 0; }
+    .training :global(.training__cap--power) { left: 7vw; top: 40vh; }
+  }
+  .training :global(.training__hold) { right: 16vw; top: 46vh; }
+
+  @media (max-width: 760px) {
+    .training__arrival { left: 16px; right: 16px; top: 20vh; bottom: auto; height: 44vh; }
+    .training__arrival :global(img) { object-position: 78% 50%; }
+    .training__night { left: 16px; top: 15vh; width: 82vw; }
+    .training__workshop { right: 16px; top: 34vh; width: 70vw; }
+    .training__rack { right: auto; left: 16px; bottom: 22vh; width: 46vw; }
+    .training__sunrise { width: 92vw; }
+    .training__hero { height: 70%; bottom: 16vh; }
+    .training__lines {
+      -webkit-mask-image: radial-gradient(ellipse 58% 48% at 50% 36%, transparent 0%, transparent 48%, rgba(0, 0, 0, 0.5) 66%, #000 84%);
+              mask-image: radial-gradient(ellipse 58% 48% at 50% 36%, transparent 0%, transparent 48%, rgba(0, 0, 0, 0.5) 66%, #000 84%);
+    }
+    .training :global(.training__hold) { right: 16px; top: 18vh; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .training__lines {
+      opacity: 0.45;
+      -webkit-mask-image: radial-gradient(ellipse 55% 58% at 50% 40%, transparent 0 62%, #000 86%);
+              mask-image: radial-gradient(ellipse 55% 58% at 50% 40%, transparent 0 62%, #000 86%);
+    }
+    .training__glow { opacity: 0.35; }
+  }
+</style>

@@ -1,0 +1,10 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// Text where words wrapped in *stars* are drawn in the accent colour.
+interface Props {
+  text: string;
+}
+const parts = Astro.props.text.split(/\*(.+?)\*/g); // odd indexes are the highlighted words
+---
+
+{parts.map((part, i) => (i % 2 ? <em>{part}</em> : part))}

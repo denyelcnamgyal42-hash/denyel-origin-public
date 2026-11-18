@@ -1,0 +1,25 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// The black brush-stroke texture used behind the gate, the title and between chapters.
+import { Image } from 'astro:assets';
+import inkWide from '../../assets/frames/intro/ink.jpg';
+import inkTall from '../../assets/frames/intro/ink-tall.jpg';
+
+interface Props {
+  eager?: boolean;
+  fixed?: boolean;
+}
+const { eager = false, fixed = false } = Astro.props;
+---
+
+<picture class:list={['ink-bg', { 'ink-bg--fixed': fixed }]} aria-hidden="true">
+  <!-- Tall screens: full-resolution tall plate (not a downscaled srcset). Landscape uses responsive Image. -->
+  <source media="(max-aspect-ratio: 3/4)" srcset={inkTall.src} width={inkTall.width} height={inkTall.height} />
+  <Image src={inkWide} alt="" widths={[960, 1376, 1920]} sizes="100vw" loading={eager ? 'eager' : 'lazy'} />
+</picture>
+
+<style>
+  .ink-bg { position: absolute; inset: 0; }
+  .ink-bg--fixed { position: fixed; }
+  .ink-bg :global(img) { width: 100%; height: 100%; object-fit: cover; }
+</style>

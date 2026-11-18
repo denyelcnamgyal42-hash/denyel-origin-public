@@ -1,0 +1,32 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// A chapter opener on the ink: tag, big title, a rose brush stroke, an optional line under it.
+// `onPaper` sets it in ink, for an opener on a light drawing. It stamps in with stampTitle() from scripts/fx/comic.ts.
+interface Props {
+  label: string;
+  title: string;
+  sub?: string;
+  onPaper?: boolean;
+}
+const { label, title, sub, onPaper = false } = Astro.props;
+---
+
+<div class:list={['chapter-head', { 'chapter-head--paper': onPaper }]} data-part="head">
+  <p class:list={['tag', { 'tag--light': !onPaper }]}>{label}</p>
+  <h2 class="chapter-title" data-part="title">{title}</h2>
+  <svg class="chapter-head__brush" viewBox="0 0 600 60" preserveAspectRatio="none" aria-hidden="true">
+    <path data-part="brush" d="M4 34 C 120 14, 260 10, 340 22 S 520 40, 596 18 L 594 34 C 520 56, 420 50, 330 42 S 110 46, 8 52 Z" />
+  </svg>
+  {sub && <p class="chapter-head__sub" data-part="sub">{sub}</p>}
+</div>
+
+<style>
+  .chapter-head {
+    position: absolute; inset: 0; z-index: 9;
+    display: grid; place-content: center; justify-items: center; gap: 18px; text-align: center;
+    padding: 0 16px; pointer-events: none; color: var(--paper);
+  }
+  .chapter-head--paper { color: var(--ink); }
+  .chapter-head__brush { width: min(560px, 80vw); height: 28px; margin-top: -10px; fill: var(--rose); }
+  .chapter-head__sub { margin: 0; font: 800 13px/1.4 var(--font-text); letter-spacing: .24em; text-transform: uppercase; color: var(--rose-light); text-shadow: 0 1px 3px var(--ink), 0 0 10px var(--ink); }
+</style>

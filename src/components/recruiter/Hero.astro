@@ -1,0 +1,267 @@
+---
+// DENYEL — ORIGIN · Recruiter hero (cohesive navy → paper composition)
+import { Image } from 'astro:assets';
+import Icon from '../ui/Icon.astro';
+import Emph from '../ui/Emph.astro';
+import { isVerifiedHref, person, recruiter as r } from '../../data/story';
+import portrait from '../../assets/frames/ch5-powersheet/ines.png';
+
+const h = r.hero;
+const cvs = r.cv.files.filter((f) => isVerifiedHref(f.href) || f.href.endsWith('.pdf'));
+const channels = [
+  { icon: 'mail' as const, label: 'Email', href: person.links.email, show: isVerifiedHref(person.links.email) },
+  { icon: 'github' as const, label: 'GitHub', href: person.links.github, show: isVerifiedHref(person.links.github) },
+  { icon: 'linkedin' as const, label: 'LinkedIn', href: person.links.linkedin, show: isVerifiedHref(person.links.linkedin) },
+].filter((c) => c.show);
+---
+
+<section id="about" class="hero" aria-labelledby="hero-hello">
+  <div class="hero__band">
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <p class="hero__kicker label">DENYEL — ORIGIN · Recruiter mode</p>
+        <h1 id="hero-hello" class="hero__hello">{h.hello}</h1>
+        <p class="hero__identity">{h.identity}</p>
+        <p class="hero__role">{h.role}</p>
+        <p class="hero__statement marked"><Emph text={h.statement} /></p>
+        <p class="hero__intro">{h.intro}</p>
+
+        <div class="hero__actions">
+          {channels.map((c) => (
+            <a
+              class:list={['go', c.icon === 'mail' ? 'go--main' : 'go--second']}
+              href={c.href}
+              target={c.href.startsWith('mailto:') ? undefined : '_blank'}
+              rel={c.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+            >
+              <Icon name={c.icon} />{c.label}
+              {!c.href.startsWith('mailto:') && <span class="go__arrow" aria-hidden="true">↗</span>}
+            </a>
+          ))}
+          {cvs.map((f) => (
+            <a class="go go--second" href={f.href} download>
+              <Icon name="cv" />{f.label === 'PDF' ? 'Download CV' : f.label}
+            </a>
+          ))}
+        </div>
+
+        <aside class="hero__open" aria-label={h.open.kicker}>
+          <span class="label">{h.open.kicker}</span>
+          <strong>{h.open.text}</strong>
+          <span class="hero__open-sub">{h.open.sub}</span>
+        </aside>
+      </div>
+
+      <figure class="hero__art">
+        <div class="hero__art-frame">
+          <Image
+            src={portrait}
+            alt={h.portraitAlt}
+            widths={[360, 520, 720]}
+            sizes="(max-width: 900px) 55vw, 340px"
+            loading="eager"
+            class="hero__portrait lift"
+            draggable="false"
+          />
+        </div>
+        <figcaption class="hero__art-cap label">Power Sheet illustration · ORIGIN</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  {r.education.about && (
+    <div class="hero__about" data-land>
+      <h2 class="hero__about-title">{r.education.about.title}</h2>
+      <p class="hero__about-body">{r.education.about.body}</p>
+    </div>
+  )}
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    padding: 0;
+    overflow: clip;
+    background: #f4f7fb;
+  }
+
+  .hero__band {
+    position: relative;
+    padding: clamp(28px, 4vw, 48px) var(--edge) clamp(40px, 5vw, 56px);
+    color: #f4f7fb;
+    background:
+      radial-gradient(90% 70% at 92% 8%, rgba(0, 183, 255, .16), transparent 52%),
+      linear-gradient(165deg, #0b1524 0%, #122036 58%, #1a2d48 100%);
+  }
+  .hero__band::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 48px;
+    background: linear-gradient(180deg, transparent, #f4f7fb);
+    pointer-events: none;
+  }
+
+  .hero__grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(220px, 340px);
+    gap: clamp(20px, 4vw, 48px);
+    align-items: center;
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  .hero__copy {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+  }
+  .hero__kicker { color: rgba(244, 247, 251, .62); margin: 0; }
+  .hero__hello {
+    margin: 0;
+    font: 500 clamp(34px, 4.8vw, 58px)/1.05 var(--font-title);
+    letter-spacing: -.02em;
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+  .hero__identity {
+    margin: 0;
+    font: 700 clamp(17px, 1.8vw, 22px)/1.3 var(--font-text);
+    color: var(--mustard);
+  }
+  .hero__role {
+    margin: 0;
+    font: 500 14.5px/1.5 var(--font-text);
+    color: rgba(244, 247, 251, .72);
+    max-width: 48ch;
+  }
+  .hero__statement {
+    margin: 4px 0 0;
+    font: 500 clamp(15px, 1.5vw, 18px)/1.55 var(--font-text);
+    max-width: 52ch;
+    color: rgba(244, 247, 251, .92);
+  }
+  .hero__statement :global(em) {
+    --marker: rgba(0, 183, 255, .35);
+    color: #fff;
+  }
+  .hero__intro {
+    margin: 0;
+    font: 500 14.5px/1.55 var(--font-text);
+    color: rgba(244, 247, 251, .68);
+    max-width: 50ch;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .hero__actions :global(.go) { min-height: 42px; }
+  .hero__actions :global(.go--main) {
+    background: #00b7ff;
+    border-color: #00b7ff;
+    color: #061018;
+  }
+  .hero__actions :global(.go--main:hover),
+  .hero__actions :global(.go--main:focus-visible) {
+    background: #7ddcff;
+    border-color: #7ddcff;
+    color: #061018;
+  }
+  .hero__actions :global(.go--second) {
+    background: transparent;
+    color: #f4f7fb;
+    border-color: rgba(244, 247, 251, .35);
+  }
+  .hero__actions :global(.go--second:hover),
+  .hero__actions :global(.go--second:focus-visible) {
+    background: #f4f7fb;
+    color: #0b1524;
+  }
+
+  .hero__open {
+    display: grid;
+    gap: 4px;
+    margin-top: 4px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--mustard);
+    background: rgba(255, 255, 255, .05);
+    max-width: 42ch;
+  }
+  .hero__open .label { color: rgba(244, 247, 251, .55); }
+  .hero__open strong { font: 700 15px/1.35 var(--font-text); }
+  .hero__open-sub { font: 500 12.5px/1.4 var(--font-text); color: rgba(244, 247, 251, .62); }
+
+  .hero__art {
+    margin: 0;
+    justify-self: end;
+    width: min(100%, 340px);
+    text-align: center;
+  }
+  .hero__art-frame {
+    position: relative;
+    padding: 12px 12px 0;
+    background:
+      linear-gradient(160deg, rgba(0, 183, 255, .18), transparent 50%),
+      rgba(255, 255, 255, .05);
+    border: 1px solid rgba(244, 247, 251, .16);
+    border-radius: 22px 22px 10px 10px;
+  }
+  .hero__portrait {
+    width: 100%;
+    height: auto;
+    max-height: min(52vh, 420px);
+    object-fit: contain;
+    object-position: bottom center;
+    display: block;
+  }
+  .hero__art-cap {
+    margin: 10px 0 0;
+    color: rgba(244, 247, 251, .5);
+  }
+
+  .hero__about {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: clamp(28px, 4vw, 40px) var(--edge) 0;
+    color: var(--ink);
+    display: grid;
+    gap: 8px;
+  }
+  .hero__about-title {
+    margin: 0;
+    font: 500 clamp(24px, 2.6vw, 32px)/1.1 var(--font-title);
+  }
+  .hero__about-body {
+    margin: 0;
+    max-width: 68ch;
+    font: 500 15.5px/1.65 var(--font-text);
+    color: var(--muted);
+  }
+
+  @media (max-width: 900px) {
+    .hero__band { padding-bottom: 36px; }
+    .hero__grid {
+      grid-template-columns: 1fr;
+      justify-items: stretch;
+      gap: 22px;
+    }
+    .hero__art {
+      justify-self: center;
+      order: -1;
+      width: min(58vw, 260px);
+    }
+    .hero__hello { max-width: none; }
+    .hero__actions { gap: 8px; }
+  }
+
+  @media (max-width: 520px) {
+    .hero__art { width: min(70vw, 220px); }
+  }
+</style>

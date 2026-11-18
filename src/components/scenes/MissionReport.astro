@@ -1,0 +1,125 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// After the three missions, the facts. It sits on the same ink as the dark board, so the files
+// that fell off the wall land here one by one as the report cards, each stamped, each with a
+// panel of its mission pinned on. Picture, file and stamp sit at different depths
+// (data-depth), so they drift apart with the mouse like the panels in the story.
+import { Image } from 'astro:assets';
+import Emph from '../ui/Emph.astro';
+import InkBackground from '../ui/InkBackground.astro';
+import { missions } from '../../data/story';
+
+import door from '../../assets/frames/ch3-mission/door.jpg';
+import windows from '../../assets/frames/ch3-missions/leads/windows.jpg';
+import dawn from '../../assets/frames/ch3-missions/talan/dawn.jpg';
+
+const r = missions.report;
+const art = [
+  { src: door, alt: 'Jaggle.ai mission doorway' },
+  { src: windows, alt: 'Dzonglish NLP mission panel' },
+  { src: dawn, alt: 'Smart Attendance mission aftermath — quiet dawn' },
+];
+---
+
+<section class="report" data-scene="report" aria-labelledby="report-title">
+  <InkBackground fixed />
+  <header class="report__head">
+    <p class="tag tag--light">{missions.label} · {missions.title}</p>
+    <h2 class="chapter-title report__title" id="report-title">{r.title}</h2>
+  </header>
+  {r.files.map((file, i) => (
+    <div class="report__file" data-part="file">
+    <figure class="panel report__art" data-part="art" data-depth="34">
+      <Image src={art[i].src} alt={art[i].alt} widths={[480, 760]} sizes="(max-width: 760px) 90vw, 380px" loading="lazy" />
+    </figure>
+    <article class="report__card" data-depth="-10">
+      <p class="tag">{file.label}</p>
+      <dl class="report__facts">
+        {file.facts.map(([term, value]) => (
+          <div><dt>{term}</dt><dd>{value}</dd></div>
+        ))}
+      </dl>
+      <ol class="report__results">
+        {file.results.map((text) => <li data-part="result"><Emph text={text} /></li>)}
+      </ol>
+      <p class="report__stamp" data-part="stamp" data-depth="22">{r.stamp}</p>
+    </article>
+    </div>
+  ))}
+</section>
+
+<style>
+  .report {
+    position: relative; z-index: 2; color: var(--ink);
+    clip-path: inset(0); /* holds the fixed ink, and the files that start oversized before they land */
+    padding: 24px var(--edge) 110px; /* the title rises right behind the last falling file */
+    display: grid; justify-items: center;
+  }
+  .report__head { position: relative; display: grid; justify-items: center; gap: 18px; margin-bottom: 56px; color: var(--paper); }
+  .report__title { font-size: clamp(44px, 6.5vw, 92px); }
+
+  /* three files dropped on the desk, each with a panel of its mission pinned over its edge,
+     on alternating sides; each a little crooked, overlapping the one before */
+  .report__file {
+    position: relative; width: min(1120px, 100%);
+    display: grid; grid-template-columns: 36% 1fr; align-items: start;
+  }
+  .report__file + .report__file { margin-top: -10px; }
+  .report__file:nth-of-type(even) { grid-template-columns: 1fr 36%; }
+  .report__file:nth-of-type(even) .report__art { grid-column: 2; grid-row: 1; margin: 70px 0 0 -70px; rotate: 3deg; }
+  .report__file:nth-of-type(even) .report__card { grid-column: 1; grid-row: 1; rotate: 1deg; }
+  /* the text keeps clear of the pinned panel (its overlap plus its parallax drift) */
+  .report__file:nth-of-type(odd) .report__card { padding-left: 120px; }
+  .report__file:nth-of-type(even) .report__card { padding-right: 120px; padding-bottom: 96px; }
+  .report__file:nth-of-type(even) .report__stamp { right: auto; left: clamp(20px, 4vw, 48px); top: auto; bottom: clamp(20px, 3vw, 36px); rotate: -6deg; }
+
+  .report__art {
+    position: relative; z-index: 2; margin: 50px -70px 0 0; aspect-ratio: 4 / 3; rotate: -3deg;
+  }
+  .report__card {
+    position: relative; background: #fff;
+    border: 3px solid var(--ink); box-shadow: 0 0 0 6px var(--paper), 0 0 0 7.5px var(--ink);
+    padding: clamp(28px, 4vw, 52px);
+    display: grid; gap: 26px; justify-items: start;
+    rotate: -1deg;
+  }
+
+  .report__facts {
+    margin: 0; width: 100%;
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 32px;
+    border-block: 2px solid var(--ink); padding-block: 22px;
+  }
+  .report__facts dt { font: 800 11px/1 var(--font-text); letter-spacing: .22em; text-transform: uppercase; color: var(--rose-deep); }
+  .report__facts dd { margin: 6px 0 0; font: 700 17px/1.35 var(--font-text); }
+
+  .report__results { margin: 0; padding: 0; list-style: none; counter-reset: result; display: grid; gap: 16px; }
+  .report__results li {
+    counter-increment: result; position: relative; padding-left: 52px;
+    font: 500 17px/1.55 var(--font-text);
+  }
+  .report__results li::before {
+    content: counter(result, decimal-leading-zero);
+    position: absolute; left: 0; top: -2px; font: 400 26px/1 var(--font-title);
+  }
+  .report__results :global(em) { font-style: normal; font-weight: 800; color: var(--rose-deep); }
+
+  .report__stamp {
+    position: absolute; right: clamp(20px, 4vw, 48px); top: clamp(24px, 4vw, 52px); margin: 0;
+    padding: 10px 16px; rotate: 8deg;
+    border: 3px solid var(--rose-deep); color: var(--rose-deep);
+    font: 800 14px/1 var(--font-text); letter-spacing: .2em; text-transform: uppercase;
+  }
+
+  @media (max-width: 760px) {
+    .report { padding-top: 24px; }
+    /* phones: the panel is pinned across the top of its file */
+    .report__file, .report__file:nth-of-type(even) { grid-template-columns: 1fr; }
+    .report__file + .report__file { margin-top: 36px; }
+    .report__art, .report__file:nth-of-type(even) .report__art { grid-column: 1; grid-row: 1; margin: 0 8% -28px; aspect-ratio: 16 / 10; }
+    .report__card, .report__file:nth-of-type(n) .report__card { grid-column: 1; grid-row: 2; padding: 44px 24px 28px; }
+    .report__file:nth-of-type(n) .report__stamp { position: static; rotate: 8deg; }
+    .report__facts { grid-template-columns: 1fr; }
+    .report__results li { padding-left: 42px; font-size: 16px; }
+    .report__stamp { position: static; justify-self: end; margin-top: -8px; font-size: 12px; }
+  }
+</style>

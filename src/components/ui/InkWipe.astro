@@ -1,0 +1,15 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// WebGL canvas that bleeds a painted texture in or out (see scripts/fx/inkwipe.ts).
+// The brush ink by default; a chapter can bring its own texture (e.g. the Talan smoke).
+import inkWide from '../../assets/frames/intro/ink.jpg';
+import inkTall from '../../assets/frames/intro/ink-tall.jpg';
+
+interface Props {
+  wide?: ImageMetadata;
+  tall?: ImageMetadata;
+}
+const { wide = inkWide, tall = wide === inkWide ? inkTall : wide } = Astro.props;
+---
+
+<canvas class="overlay inkwipe" data-part="inkwipe" data-ink-wide={wide.src} data-ink-tall={tall.src} aria-hidden="true"></canvas>

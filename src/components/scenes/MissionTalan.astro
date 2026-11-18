@@ -1,0 +1,222 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// Mission 03 · Smart Attendance. Smoke swallows file 03 and opens on a campus panorama; a
+// false-match antagonist (metaphor) rises; face-gallery / verify split; pipeline gates;
+// HOLD to cite evidence; check-rain metaphor as it shatters; dawn; fold back to the board.
+// Timeline: scripts/scenes/talan.ts.
+import { Image } from 'astro:assets';
+import Caption from '../ui/Caption.astro';
+import HoldButton from '../ui/HoldButton.astro';
+import InkBackground from '../ui/InkBackground.astro';
+import InkWipe from '../ui/InkWipe.astro';
+import MissionBoard from '../ui/MissionBoard.astro';
+import { talan } from '../../data/story';
+
+import panorama from '../../assets/frames/ch3-missions/talan/panorama.jpg';
+import squad from '../../assets/frames/ch3-missions/talan/squad.jpg';
+import smoke from '../../assets/frames/ch3-missions/talan/smoke.jpg';
+import lie from '../../assets/frames/ch3-missions/talan/lie.jpg';
+import lieCracks from '../../assets/frames/ch3-missions/talan/lie-cracks.jpg';
+import lieBreaking from '../../assets/frames/ch3-missions/talan/lie-breaking.jpg';
+import lieShatter from '../../assets/frames/ch3-missions/talan/lie-shatter.jpg';
+import library from '../../assets/frames/ch3-missions/talan/library.jpg';
+import smokeHand from '../../assets/frames/ch3-missions/talan/smoke-hand.jpg';
+import stampArt from '../../assets/frames/ch3-missions/talan/stamp.jpg';
+import rivers from '../../assets/frames/ch3-missions/talan/rivers.jpg';
+import faceoff from '../../assets/frames/ch3-missions/talan/faceoff.jpg';
+import dawn from '../../assets/frames/ch3-missions/talan/dawn.jpg';
+
+const c = talan.captions;
+// VALIDATED stamps: lower-right of each cyan stage card on rivers.jpg (Capture→YOLO→FaceNet→OpenCV)
+const gates = [[40.5, 55], [55.5, 55], [73.5, 55], [88.5, 55]];
+const lieStages = [
+  [lie, 'False-match antagonist — stage 1'],
+  [lieCracks, 'False-match antagonist — cracking'],
+  [lieBreaking, 'False-match antagonist — breaking'],
+  [lieShatter, 'False-match antagonist — shattered'],
+] as const;
+const showGalleryCount = typeof talan.sfx.articles === 'number' && talan.sfx.articles > 0;
+const showTestCount = typeof talan.sfx.tests === 'number' && talan.sfx.tests > 0;
+---
+
+<section class="scene talan seam" data-scene="talan" aria-label="Mission 03, Smart Attendance: false-match boss fight">
+  <InkBackground fixed />
+  <MissionBoard done={[0, 1]} cut />
+  <div class="scene__pin">
+    <div class="talan__stage" data-part="stage">
+      <div class="talan__inside" data-part="inside">
+        <div class="talan__pano" data-part="pano" data-depth="-8">
+          <Image src={panorama} alt="Smart Attendance campus panorama — Bhutanese campus and mountains" widths={[1523, 3046]} sizes="260vw" loading="lazy" />
+        </div>
+        <Image class="talan__smoke ink-layer" data-part="smoke" src={smoke} alt="" widths={[1250, 1920]} sizes="160vw" loading="lazy" />
+        <!-- full-scene squad art (not a white cutout): skip multiply so characters stay readable -->
+        <Image class="talan__squad" data-part="squad" data-depth="18" src={squad} alt="Smart Attendance build context — vision workstation" widths={[960, 1600]} sizes="80vw" loading="lazy" />
+
+        <div class="panel talan__library" data-part="library">
+          <div class="panel__cam">
+            <Image data-part="library-img" src={library} alt="Face embedding gallery and attendance roster" widths={[600, 1200]} sizes="40vw" loading="lazy" />
+          </div>
+        </div>
+        {showGalleryCount && (
+          <p class="sfx-count talan__count--articles" data-part="count-articles" data-depth="30" aria-hidden="true"><b data-part="articles">0</b><span>{talan.sfxLabels.articles}</span></p>
+        )}
+
+        <div class="inset talan__guess-panel" data-part="smoke-hand" data-depth="16">
+          <Image src={smokeHand} alt="Illustrative uncertain match score (metaphor)" widths={[640, 1111]} sizes="44vw" loading="lazy" />
+          <p class="talan__guess" data-part="guess" aria-hidden="true">{talan.guess}</p>
+        </div>
+        <div class="inset talan__fact-panel" data-part="stamp" data-depth="24">
+          <Image src={stampArt} alt="Attendance verification stamp — VERIFIED" widths={[320, 640]} sizes="44vw" loading="lazy" />
+          <p class="talan__fact" data-part="fact" aria-hidden="true">{talan.fact}</p>
+        </div>
+
+        <div class="panel talan__frame" data-part="rivers">
+          <div class="panel__cam" data-part="rivers-cam">
+            <div class="panel__map" data-part="map" style="--ar: calc(2660 / 1412)">
+              <Image src={rivers} alt="Smart Attendance pipeline: Capture, YOLO, FaceNet, OpenCV" widths={[1330, 2660]} sizes="90vw" loading="lazy" />
+              {gates.map(([x, y]) => (
+                <span class="talan__gate" style={`left:${x}%;top:${y}%`}><i data-part="validated">{talan.validated}</i></span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div class="panel talan__face" data-part="faceoff">
+          <Image src={faceoff} alt="Confronting the false identity match" widths={[960, 1600]} sizes="90vw" loading="lazy" />
+        </div>
+        <div class="talan__lie" data-part="lie" data-depth="26">
+          {lieStages.map(([src, alt]) => (
+            <Image class="talan__lie-stage" data-part="lie-stage" src={src} alt={alt} widths={[960, 1408]} sizes="100vw" loading="lazy" />
+          ))}
+        </div>
+        {talan.lies.map((text, i) => <p class={`talan__whisper talan__whisper--${i}`} data-part="whisper" aria-hidden="true">{text}</p>)}
+        <div class="talan__cites" aria-hidden="true">
+          {talan.citations.map((text) => <i data-part="cite">{text}</i>)}
+        </div>
+
+        <canvas class="overlay talan__rain" data-part="rain" aria-hidden="true"></canvas>
+        {showTestCount && (
+          <p class="sfx-count talan__count--tests" data-part="count-tests" aria-hidden="true"><b data-part="tests">0</b><span>{talan.sfxLabels.tests}</span></p>
+        )}
+        <div class="panel talan__frame talan__dawn" data-part="dawn">
+          <Image src={dawn} alt="Quiet dawn after verified attendance" widths={[960, 1600]} sizes="90vw" loading="lazy" />
+        </div>
+        <div class="overlay speed" data-part="speed" aria-hidden="true"></div>
+      </div>
+
+      {Object.entries(c).map(([name, text]) => (
+        <Caption text={text} class={`talan__cap talan__cap--${name}`} data-caption={name} />
+      ))}
+      <HoldButton name="cite" label="Hold to<br/>cite" hint="Hold to cite frame · embedding · threshold against the false match" class="talan__hold" />
+    </div>
+    <InkWipe wide={smoke} />
+  </div>
+</section>
+
+<style>
+  .talan { z-index: 2; clip-path: inset(0); }
+  .talan__stage { position: absolute; inset: 0; color: var(--ink); }
+  .talan__inside {
+    position: absolute; inset: 0; overflow: hidden; background: var(--paper); will-change: transform;
+    box-shadow: 0 0 0 18px var(--paper), 0 0 0 26px var(--ink); /* a framed page when it folds into its file */
+  }
+
+  /* the panorama: taller than the screen, the camera pans along it */
+  .talan__pano { --h: 118svh; position: absolute; left: 0; top: calc(50% - var(--h) / 2); height: var(--h); width: calc(var(--h) * 1523 / 642); }
+  .talan__pano :global(img) { width: 100%; height: 100%; max-width: none; }
+  .talan :global(.talan__smoke) {
+    position: absolute; left: -30vw; top: -15vh; width: 160vw; height: 130vh; max-width: none; object-fit: cover; z-index: 1;
+  }
+  .talan :global(.talan__squad) {
+    --w: min(78vw, 120vh);
+    position: absolute; z-index: 2; bottom: -3vh; left: calc(50% - var(--w) / 2); width: var(--w); max-width: none; height: auto;
+    object-fit: cover; object-position: 50% 45%;
+    border: 3px solid var(--ink);
+    box-shadow: 0 0 0 5px var(--paper);
+  }
+
+  /* the Hallucination: four drawings of the same pose, stacked */
+  .talan__lie {
+    --w: min(100vw, 170vh); --cy: 50%; --face-y: -28; --face-s: .55;
+    position: absolute; z-index: 3; width: var(--w); height: calc(var(--w) * 768 / 1408);
+    left: calc(50% - var(--w) / 2); top: calc(var(--cy) - var(--w) * 384 / 1408);
+    mix-blend-mode: multiply;
+    -webkit-mask: linear-gradient(#000 70%, transparent);
+            mask: linear-gradient(#000 70%, transparent);
+  }
+  .talan :global(.talan__lie-stage) {
+    position: absolute; inset: 0; width: 100%; height: 100%; max-width: none;
+    filter: brightness(1.08) contrast(1.2); /* the drawing's paper turns white and multiply drops it */
+  }
+  .talan__whisper {
+    position: absolute; z-index: 4; margin: 0; max-width: 22ch;
+    font: 400 clamp(20px, 2.2vw, 32px)/1.15 var(--font-title); color: var(--ink);
+    text-shadow: 0 0 6px var(--paper), 0 0 14px var(--paper);
+  }
+  .talan__whisper--0 { left: 7vw; top: 20vh; }
+  .talan__whisper--1 { right: 6vw; top: 34vh; text-align: right; }
+  .talan__whisper--2 { left: 10vw; top: 60vh; }
+
+  .talan__library { left: 50vw; right: 8vw; top: 7vh; bottom: 7vh; }
+  .talan__library :global(img) { inset: 0 0 auto; height: auto; }
+  .talan__count--articles { left: 7vw; top: 26vh; }
+  .talan__count--tests { right: 7vw; top: 14vh; justify-items: end; z-index: 7; }
+
+  .talan__guess-panel { left: 4vw; top: 16vh; width: 45vw; aspect-ratio: 1111 / 640; }
+  /* stamp.jpg is portrait 640×1280 — keep the inset tall so the VERIFIED plate isn't cropped */
+  .talan__fact-panel { right: 4vw; top: 22vh; width: min(28vw, 42vh); aspect-ratio: 640 / 1280; z-index: 5; }
+  .talan__fact-panel :global(img) { object-fit: cover; object-position: 50% 50%; scale: 1; }
+  .talan__guess, .talan__fact { position: absolute; z-index: 1; margin: 0; font: 400 clamp(34px, 4.4vw, 70px)/1 var(--font-title); }
+  .talan__guess { left: 18%; top: 56%; color: rgba(20, 17, 19, .8); filter: blur(.6px); text-shadow: 0 0 8px var(--paper), 0 0 16px var(--paper); }
+  /* sit over empty sky in the stamp art so it doesn't cover the VERIFIED plate */
+  .talan__fact { left: 8%; top: 4%; padding: .1em .3em; background: var(--paper); border: 3px solid var(--ink); font-size: clamp(22px, 2.8vw, 42px); }
+
+  .talan__frame { --pw: 86vw; --ph: 80vh; left: 7vw; right: 7vw; top: 13vh; bottom: 7vh; }
+  .talan__gate { position: absolute; width: 0; height: 0; rotate: -8deg; }
+  .talan__gate i, .talan__cites i {
+    position: absolute; padding: 6px 10px; white-space: nowrap; font-style: normal;
+    font: 800 12px/1 var(--font-text); letter-spacing: .2em; text-transform: uppercase;
+    color: var(--rose-deep); border: 3px solid var(--rose-deep); background: rgba(243, 239, 231, .85);
+  }
+  .talan__gate i { left: -40px; top: 12px; }
+
+  .talan__face { left: 7vw; right: 7vw; top: 42vh; bottom: 5vh; z-index: 2; }
+  /* keep faces + VERIFYING HUD in the short face-off panel; HOLD stays above via .talan__hold */
+  .talan__face :global(img) { object-fit: cover; object-position: 50% 42%; }
+  .talan__cites { position: absolute; left: 0; right: 0; top: 46vh; z-index: 4; display: grid; justify-items: center; }
+  .talan__cites i { position: static; grid-area: 1 / 1; font-size: 14px; color: var(--ink); border-color: var(--ink); background: #fff; }
+
+  .talan__rain { z-index: 6; color: var(--ink); }
+  .talan__dawn { z-index: 8; }
+  .talan__dawn :global(img) { object-fit: cover; object-position: 38% 58%; }
+
+  @media (min-width: 761px) {
+    .talan :global(.talan__cap) { left: 9vw; bottom: 9vh; }
+    .talan :global(.talan__cap--cite) { left: 7vw; top: 16vh; bottom: auto; }
+    .talan :global(.talan__cap--library), .talan :global(.talan__cap--beams) { left: 7vw; top: auto; bottom: 12vh; }
+    .talan :global(.talan__cap--split) { left: 4vw; top: auto; bottom: 8vh; }
+    .talan :global(.talan__cap--tests) { left: 7vw; bottom: 9vh; z-index: 9; }
+    .talan :global(.talan__cap--dawn) { left: 50%; bottom: 10vh; translate: -50% 0; z-index: 9; }
+  }
+  .talan :global(.talan__hold) { right: 10vw; top: 50vh; }
+
+  @media (max-width: 760px) {
+    .talan__pano { --h: 100svh; }
+    .talan__lie { --w: 150vw; --cy: 42%; --face-y: -44; --face-s: 1; }
+    .talan__whisper { font-size: 19px; left: 16px; right: 16px; text-align: left; max-width: none; }
+    .talan__whisper--0 { top: 11vh; }
+    .talan__whisper--1 { top: 18vh; }
+    .talan__whisper--2 { top: 25vh; }
+    .talan__library { left: 16px; right: 16px; top: 24vh; bottom: 20vh; }
+    .talan__count--articles { left: 16px; top: 9vh; }
+    .talan__count--tests { right: 16px; top: 11vh; }
+    .talan__guess-panel { left: 16px; right: 16px; width: auto; top: 13vh; }
+    .talan__fact-panel { left: auto; right: 16px; width: min(42vw, 36vh); top: 48vh; }
+    .talan__frame { --pw: calc(100vw - 32px); --ph: 44vh; left: 16px; right: 16px; top: 20vh; bottom: auto; height: 44vh; }
+    .talan__face { left: 16px; right: 16px; top: 46vh; bottom: 18vh; }
+    .talan__face :global(img) { object-position: 50% 40%; }
+    .talan__dawn :global(img) { object-position: 32% 62%; }
+    .talan__cites { top: 50vh; }
+    .talan :global(.talan__hold) { right: 24px; top: 30vh; }
+  }
+</style>

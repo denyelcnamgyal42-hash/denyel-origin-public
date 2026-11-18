@@ -1,0 +1,27 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// The ink runs down over the page in real drips until the screen is black: the seam into a
+// chapter that opens on ink. The drips shape is a mask over the ink texture (scripts/fx/drips.ts).
+import { getImage } from 'astro:assets';
+import InkBackground from './InkBackground.astro';
+import dripsArt from '../../assets/frames/ch3-mission/drips.png';
+
+const drips = await getImage({ src: dripsArt, width: 1240, format: 'webp' });
+---
+
+<div class="drips" data-part="drips" style={`--drips:url(${drips.src})`} aria-hidden="true">
+  <InkBackground />
+</div>
+
+<style>
+  .drips {
+    --fall: -45vh; /* where the drips hang: the solid ink is above and fades softly into the drips below */
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; visibility: hidden;
+    -webkit-mask:
+      linear-gradient(#000 calc(100% - 16vh), transparent) 0 0 / 100% max(0px, calc(var(--fall) + 16vh)) no-repeat,
+      var(--drips) 0 var(--fall) / 100% 45vh no-repeat;
+            mask:
+      linear-gradient(#000 calc(100% - 16vh), transparent) 0 0 / 100% max(0px, calc(var(--fall) + 16vh)) no-repeat,
+      var(--drips) 0 var(--fall) / 100% 45vh no-repeat;
+  }
+</style>

@@ -1,0 +1,102 @@
+/* VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS) */
+/* The comic vocabulary shared by every chapter: scene, panel, inset, caption, tag, layers. */
+
+/* a pinned full-screen stage */
+.scene { position: relative; }
+.scene__pin { position: relative; height: 100svh; overflow: hidden; }
+
+/* a scene that starts exactly where the previous one ended (fx/seam.ts) */
+.seam { margin-top: -100svh; }
+
+/* a framed comic panel with a double ink border */
+.panel {
+  position: absolute; overflow: hidden; background: var(--paper);
+  border: 3px solid var(--ink);
+  box-shadow: 0 0 0 6px var(--paper), 0 0 0 7.5px var(--ink);
+}
+.panel__cam { position: absolute; inset: 0; will-change: transform; }
+/* a drawing that keeps its proportions inside a panel (cover), so marks placed in % stay on it;
+   the panel sets --pw/--ph (its size) and the map --ar (the drawing's width / height) */
+.panel__map {
+  --mw: max(var(--pw), var(--ph) * var(--ar));
+  position: absolute; width: var(--mw); height: calc(var(--mw) / var(--ar));
+  left: calc(50% - var(--mw) / 2); top: calc(50% - var(--mw) / var(--ar) / 2);
+}
+.panel img, .layer {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+}
+
+/* a drawing on paper laid over another one: its white paper disappears */
+.ink-layer { mix-blend-mode: multiply; }
+
+/* a small close-up panel that slides over the scene */
+.inset {
+  position: absolute; z-index: 4; overflow: hidden;
+  border: 3px solid var(--ink); background: var(--paper);
+  box-shadow: 0 0 0 5px var(--paper);
+}
+.inset img { width: 100%; height: 100%; object-fit: cover; scale: 1.12; }
+
+/* narration caption, like Santioni's story boxes */
+.caption {
+  background: #fff;
+  border: 2px solid var(--ink);
+  padding: 12px 16px;
+  max-width: 34ch;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.55;
+  text-transform: uppercase;
+}
+.caption em { font-style: normal; color: var(--rose-deep); }
+.caption--dark { background: var(--ink); color: var(--paper); border-color: var(--paper); }
+.caption--dark em { color: var(--rose); }
+.scene .caption { position: absolute; z-index: 6; margin: 0; }
+
+/* chapter tag */
+.tag {
+  margin: 0; z-index: 5;
+  font: 800 12px/1 var(--font-text); letter-spacing: .3em; text-transform: uppercase;
+  background: var(--ink); color: var(--paper); padding: 8px 12px; white-space: nowrap;
+}
+.tag--light { background: var(--paper); color: var(--ink); }
+.scene .tag--top { position: absolute; top: 100px; left: 50%; translate: -50% 0; }
+
+/* big chapter title */
+.chapter-title {
+  margin: 0; font-family: var(--font-title); font-weight: 400;
+  font-size: clamp(52px, 10vw, 160px); line-height: .9;
+}
+
+/* a number as manga SFX lettering (rose, inked outline) with its label on a black tag */
+.sfx-count {
+  position: absolute; z-index: 5; margin: 0; display: grid; justify-items: start;
+  font: 400 clamp(96px, 13vw, 220px)/.9 var(--font-title);
+  color: var(--rose); -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill;
+}
+.sfx-count span {
+  font: 800 13px/1 var(--font-text); letter-spacing: .3em; text-transform: uppercase;
+  color: var(--paper); background: var(--ink); padding: 8px 12px; -webkit-text-stroke: 0; margin-top: 10px;
+}
+
+/* full-screen overlays used by transitions */
+.overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.speed {
+  z-index: 6; opacity: 0;
+  background: repeating-conic-gradient(from 0deg at 50% 45%, var(--ink) 0deg 0.6deg, transparent 0.6deg 4.5deg);
+  -webkit-mask: radial-gradient(circle at 50% 45%, transparent 22%, #000 62%);
+          mask: radial-gradient(circle at 50% 45%, transparent 22%, #000 62%);
+}
+.inkwipe { z-index: 8; }
+
+@media (max-width: 760px) {
+  .scene .caption { left: 16px; right: 16px; top: auto; bottom: 5vh; max-width: none; translate: none; }
+  .scene .tag--top { top: 88px; }
+  .sfx-count { font-size: 72px; -webkit-text-stroke: 2px var(--ink); }
+  .sfx-count span { font-size: 10px; padding: 6px 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .speed, .inkwipe { display: none; }
+}

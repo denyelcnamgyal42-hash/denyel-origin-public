@@ -1,0 +1,250 @@
+---
+// DENYEL — ORIGIN · Final Chapter (mechanics adapted from MIT-licensed VOL.01; art/story reserved — see LICENSE-ASSETS)
+// Chapter 6: the volume rewinds. Chapter 5's power sheet shrinks into a page on a pile; pages riffle
+// back through side quests, missions, and training to the origin night scene. Dawn opens; Denyel
+// stands at the horizon. "ORIGIN" stamps, cracks, and "To be continued…" bleeds in. The colophon
+// leads to Recruiter Mode and verified contact channels.
+import { Image } from 'astro:assets';
+import ChapterHead from '../ui/ChapterHead.astro';
+import Caption from '../ui/Caption.astro';
+import Emph from '../ui/Emph.astro';
+import Icon from '../ui/Icon.astro';
+import { finale as fin, isVerifiedHref } from '../../data/story';
+
+import portWide from '../../assets/frames/ch1-origin/port-wide.jpg';
+import arrival from '../../assets/frames/ch2-training/arrival.jpg';
+import board from '../../assets/frames/ch3-missions/board.jpg';
+import land from '../../assets/frames/ch4-sidequests/land.png';
+// Reuse finished original art: dawn silhouette from Training sunrise; protagonist from Power Sheet.
+// Dedicated ch6 dawn / from-behind figure / ink shards still needed for a perfect Finale plate.
+import dawn from '../../assets/frames/ch2-training/sunrise.jpg';
+import ines from '../../assets/frames/ch5-powersheet/ines.png';
+
+const contactRows = fin.contacts.filter((c) => isVerifiedHref(c.href));
+
+// the stack, first page at the bottom: the camera ends on the port where the story began;
+// on top, a copy of the Chapter 5 page (filled by the script when this chapter takes over)
+const pages = [portWide, arrival, board, land];
+const tilts = [0, 1.6, -1.2, 2.1];
+// living zones on the Power Sheet cutout (hoodie / jacket cloth); face stays still
+const live = [
+  { kind: 'cloth', box: [0.12, 0.22, 0.78, 0.55], anchor: [0.5, 0.28], amp: 0.02 },
+  { kind: 'cloth', box: [0.18, 0.55, 0.82, 0.92], anchor: [0.5, 0.62], amp: 0.015 },
+  { kind: 'still', box: [0.32, 0.02, 0.68, 0.22] },
+];
+
+// where "VOL.01" breaks: jagged cracks run out of one impact point; each piece is the title clipped
+// between two neighbouring cracks, and flies off along the middle of its wedge.
+// Coordinates are % of the title box; ASPECT turns them back into round angles (the box is wide).
+const CX = 54, CY = 58, ASPECT = 3.4;
+const ANGLES = [6, 41, 79, 113, 147, 184, 216, 252, 291, 327];
+const at = (a: number, r: number) => {
+  const rad = (a * Math.PI) / 180;
+  return [CX + Math.cos(rad) * r, CY + Math.sin(rad) * r * ASPECT];
+};
+const crack = (a: number) => [at(a, 0), at(a + 6, 7), at(a - 5, 15), at(a + 3, 26), at(a, 400)];
+const pt = ([x, y]: number[]) => `${x.toFixed(1)}% ${y.toFixed(1)}%`;
+const cracks = ANGLES.map(crack);
+const pieces = ANGLES.map((a, i) => {
+  const next = ANGLES[(i + 1) % ANGLES.length] + (i === ANGLES.length - 1 ? 360 : 0);
+  const poly = [...cracks[i], ...crack(next).slice(1).reverse()].map(pt).join(', ');
+  return { poly, angle: (a + next) / 2, spin: (i % 2 ? 1 : -1) * (14 + (i * 7) % 20) };
+});
+---
+
+<section class="finale seam" id="finale" data-scene="finale" aria-labelledby="finale-title">
+  <div class="finale__pin">
+    <div class="finale__pages" aria-hidden="true" inert>
+      {pages.map((src, i) => (
+        <div class="panel finale__page" data-part="page" style={`--tilt: ${tilts[i]}deg`}>
+          <Image src={src} alt="" widths={[1280]} sizes="100vw" loading="lazy" />
+        </div>
+      ))}
+      <div class="finale__page finale__page--copy" data-part="page"></div>
+    </div>
+    <div class="finale__night" data-part="night" aria-hidden="true"></div>
+    <ChapterHead label={fin.label} title={fin.title} />
+
+    <div class="finale__dawn" data-part="dawn">
+      <div class="panel__map finale__map" data-part="map">
+        <Image src={dawn} alt={fin.dawnAlt} widths={[900, 1377]} sizes="(max-width: 760px) 240vw, 100vw" loading="lazy" />
+        <div class="finale__ines" data-part="ines" data-live={JSON.stringify(live)}>
+          <Image src={ines} alt={fin.inesAlt} widths={[372]} sizes="20vw" loading="lazy" />
+        </div>
+      </div>
+    </div>
+    <div class="overlay speed" data-part="speed" aria-hidden="true"></div>
+    <div class="overlay finale__flash" data-part="flash" aria-hidden="true"></div>
+
+    <div class="finale__sky">
+      <div class="finale__stage">
+        <p class="finale__vol" data-part="vol" aria-hidden="true">
+          {pieces.map((p) => (
+            <span data-part="piece" data-angle={p.angle} data-spin={p.spin} style={`clip-path: polygon(${p.poly})`}>{fin.vol}</span>
+          ))}
+          <svg class="finale__cracks" data-part="cracks" viewBox="0 0 100 100" preserveAspectRatio="none">
+            {cracks.map((c) => <polyline data-part="crack" pathLength="1" points={c.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ')} />)}
+          </svg>
+        </p>
+        <div class="finale__shards" data-part="shards" aria-hidden="true"></div>
+        <h2 class="finale__continued" id="finale-title" data-part="continued">{fin.continued}</h2>
+      </div>
+      <Caption text={fin.next} class="finale__next" data-part="next" />
+    </div>
+
+    <aside class="panel finale__colophon" data-part="colophon" data-depth="26" aria-label={fin.colophon.label}>
+      <p class="tag">{fin.colophon.label}</p>
+      <p class="finale__book">{fin.colophon.title}</p>
+      <p class="finale__pitch"><Emph text={fin.pitch} /></p>
+      <ul>
+        {contactRows.map((c) => (
+          <li data-part="row">
+            <a
+              href={c.href}
+              aria-label={`${c.label}: ${c.value}`}
+              {...(c.download
+                ? { download: '' }
+                : c.href.startsWith('http')
+                  ? { target: '_blank', rel: 'noopener noreferrer' }
+                  : {})}
+            >
+              <Icon name={c.icon} class="finale__icon" /><span>{c.label}</span><i aria-hidden="true"></i><b>{c.value}</b>
+            </a>
+          </li>
+        ))}
+        <li data-part="row">
+          <a href="/recruiter/" data-bleed="colour" aria-label="Open Recruiter Mode — colour edition portfolio">
+            <Icon name="web" class="finale__icon" /><span>Recruiter</span><i aria-hidden="true"></i><b>Colour edition</b>
+          </a>
+        </li>
+      </ul>
+      <p class="finale__credits">{fin.colophon.credits}</p>
+      <a class="finale__again" href="#top">↑ {fin.colophon.again}</a>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .finale { position: relative; background: var(--paper); color: var(--ink); overflow: clip; }
+  .finale__pin { position: relative; height: 100svh; overflow: hidden; }
+
+  /* the stack of pages, each a little askew; the bottom one (the port) opens to the whole screen (--open) */
+  .finale__pages { position: absolute; inset: 0; }
+  .finale__page {
+    --open: 0; --y: 11svh; --x: 8vw;
+    top: calc(var(--y) * (1 - var(--open)) - 8px * var(--open));
+    bottom: calc(var(--y) * (1 - var(--open)) - 8px * var(--open));
+    left: calc(var(--x) * (1 - var(--open)) - 8px * var(--open));
+    right: calc(var(--x) * (1 - var(--open)) - 8px * var(--open));
+    rotate: calc(var(--tilt) * (1 - var(--open)));
+  }
+  /* Chapter 5's page: full screen and unframed at first, exactly as it was left (not a .panel: its
+     border and image rules would change the copied layout; the script draws the frame with shadows) */
+  .finale__page.finale__page--copy { --y: 0px; --x: 0px; --tilt: 0deg; position: absolute; overflow: hidden; background: var(--paper); }
+  .finale__night { position: absolute; inset: 0; background: var(--ink); opacity: .62; visibility: hidden; }
+
+  /* the port at dawn: light opens from the horizon (--sun), the drawing kept in proportion (panel__map) */
+  .finale__dawn {
+    --sun: 130%; --pw: 100vw; --ph: 100svh;
+    position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden;
+    -webkit-mask: radial-gradient(ellipse 120% 80% at 50% 54%, #000 var(--sun), transparent calc(var(--sun) + 30%));
+            mask: radial-gradient(ellipse 120% 80% at 50% 54%, #000 var(--sun), transparent calc(var(--sun) + 30%));
+  }
+  .finale__map { --ar: 1920 / 815; --lift: 0; } /* reused Training sunrise */
+  .finale__map :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* protagonist at the horizon line — Power Sheet cutout until a from-behind plate exists */
+  .finale__ines {
+    position: absolute; left: 48%; bottom: 2%; height: 42%; aspect-ratio: 1200 / 1850; transform-origin: 50% 100%;
+  }
+  .finale__ines :global(img) { width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; }
+
+  /* the blast of the breaking title: a flash of paper */
+  .finale__flash { z-index: 4; background: var(--paper); opacity: 0; }
+
+  /* the sky: VOL.01, then "To be continued…" in the same place, the caption under it */
+  .finale__sky {
+    position: absolute; z-index: 5; left: 0; right: 0; top: 18svh;
+    display: grid; justify-items: center; gap: 18px; padding: 0 16px; pointer-events: none;
+  }
+  .finale__stage { position: relative; display: grid; place-items: center; }
+  .finale__stage > * { grid-area: 1 / 1; }
+  .finale__vol { position: relative; margin: 0; font: 400 clamp(96px, 13vw, 210px)/1 var(--font-title); }
+  .finale__vol span { display: block; }
+  .finale__vol span + span { position: absolute; inset: 0; }
+  .finale__cracks { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .finale__cracks polyline {
+    fill: none; stroke: var(--paper); stroke-width: 5; vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1; stroke-dashoffset: 1; stroke-linejoin: bevel;
+  }
+  .finale__shards {
+    position: absolute; width: 64vw; height: 38vw; max-width: none; pointer-events: none;
+    left: calc(50% - 32vw); top: calc(50% - 19.3vw);
+  }
+  .finale__continued { margin: 0; font: 400 clamp(48px, 6.2vw, 104px)/1 var(--font-title); white-space: nowrap; }
+  .finale :global(.finale__next) { position: static; max-width: none; text-align: center; }
+
+  /* the colophon on the quay, where her gaze goes */
+  .finale__colophon {
+    z-index: 6; right: var(--edge); bottom: 5svh; width: min(400px, 31vw);
+    padding: 22px 24px 18px; display: grid; gap: 10px; justify-items: start; background: #fff;
+    transition: translate .4s cubic-bezier(.2, .8, .2, 1), box-shadow .4s;
+  }
+  /* it drifts with the mouse like the framed close-ups, and lifts off the quay under it */
+  .finale__colophon:hover {
+    translate: 0 -8px;
+    box-shadow: 0 0 0 6px var(--paper), 0 0 0 7.5px var(--ink), 0 22px 0 -2px rgb(20 17 19 / .3);
+  }
+  .finale__book { margin: 4px 0 0; font: 400 clamp(20px, 1.6vw, 25px)/1.15 var(--font-title); }
+  .finale__pitch { margin: 0; font: 500 14px/1.45 var(--font-text); }
+  .finale__pitch :global(em) { font-style: normal; font-weight: 800; color: var(--rose-deep); }
+  .finale__colophon ul { list-style: none; margin: 4px 0 0; padding: 0; width: 100%; display: grid; gap: 2px; }
+  .finale__colophon li a {
+    display: flex; align-items: baseline; gap: 8px; padding: 5px 0; color: inherit; text-decoration: none;
+    font: 800 12px/1.2 var(--font-text); letter-spacing: .16em; text-transform: uppercase;
+  }
+  .finale__colophon li a { align-items: center; }
+  .finale__colophon li i { flex: 1; border-bottom: 2px dotted currentColor; opacity: .5; translate: 0 3px; }
+  .finale__colophon :global(.finale__icon) { width: 18px; height: 18px; transition: rotate .25s, color .25s; }
+  .finale__colophon li a:hover :global(.finale__icon), .finale__colophon li a:focus-visible :global(.finale__icon) { color: var(--rose-deep); rotate: -10deg; }
+  .finale__colophon li b { font-weight: 600; letter-spacing: .02em; text-transform: none; font-size: 14px; }
+  .finale__colophon li a:hover b, .finale__colophon li a:focus-visible b { color: var(--rose-deep); }
+  .finale__colophon li a:hover i { opacity: 1; border-bottom-style: solid; border-color: var(--rose); }
+  .finale__credits { margin: 6px 0 0; font: 500 11px/1.5 var(--font-text); opacity: .7; }
+  .finale__pending { margin: 4px 0 0; font: 500 12px/1.45 var(--font-text); opacity: .75; }
+  .finale__again { font: 800 11px/1 var(--font-text); letter-spacing: .2em; text-transform: uppercase; color: var(--rose-deep); text-decoration: none; }
+
+  /* short laptop screens */
+  @media (min-width: 761px) and (max-height: 820px) {
+    .finale__sky { top: 16svh; gap: 12px; }
+    .finale__vol { font-size: clamp(80px, 10vw, 150px); }
+    .finale__continued { font-size: clamp(44px, 5vw, 76px); }
+    .finale__colophon { padding: 16px 20px 14px; gap: 7px; }
+    .finale__colophon li a { padding: 3px 0; }
+  }
+
+  /* phones: the port fills the screen, then the camera pulls back (--lift) to the top 60%, fading into
+     the paper, and the colophon sits under it */
+  @media (max-width: 760px) {
+    .finale__page { --y: 14svh; --x: 6vw; }
+    .finale__map {
+      scale: calc(1 - .4 * var(--lift)); transform-origin: 50% 0;
+      -webkit-mask: linear-gradient(#000 82%, transparent); mask: linear-gradient(#000 82%, transparent);
+    }
+    .finale__sky { top: 10svh; gap: 12px; }
+    .finale__vol { font-size: 22vw; }
+    .finale__continued { font-size: 10vw; }
+    .finale__shards { width: 150vw; height: 90vw; left: calc(50% - 75vw); top: calc(50% - 45.3vw); }
+    .finale__ines { height: 36%; left: 44%; }
+    .finale :global(.finale__next) { font-size: 12px; padding: 9px 12px; }
+    .finale__colophon { left: var(--edge); right: var(--edge); top: calc(60svh - 8px); bottom: auto; width: auto; padding: 14px 16px 12px; gap: 6px; }
+    .finale__colophon .tag { display: none; }
+    .finale__book { font-size: 19px; margin: 0; }
+    .finale__pitch { font-size: 12.5px; }
+    .finale__colophon li a { padding: 4px 0; font-size: 11px; }
+    .finale__colophon li b { font-size: 13px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .finale__pages, .finale__night, .finale :global(.chapter-head), .finale__vol, .finale__stage :global(.finale__shards) { display: none; }
+  }
+</style>

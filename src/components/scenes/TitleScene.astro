@@ -1,0 +1,64 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+import InkBackground from '../ui/InkBackground.astro';
+import { person } from '../../data/story';
+
+const first = person.shortName ?? person.name.split(' ')[0] ?? person.name;
+const last = person.tagline;
+
+// the cloud of paper that rises over the ink title (Santioni-style splash)
+let seed = 7;
+const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const puffs = Array.from({ length: 34 }, (_, i) => ({
+  cx: (i / 33) * 1600 + (rand() - 0.5) * 60,
+  cy: 120 + rand() * 90,
+  r: 60 + rand() * 90,
+}));
+---
+
+<section class="scene title" data-scene="title">
+  <div class="scene__pin title__pin">
+    <InkBackground eager />
+    <div class="title__text" data-depth="-14">
+      <p class="title__small" data-part="small">The story of</p>
+      <h1 class="title__name" data-part="name"><span>{first}</span>{last && <span>{last}</span>}</h1>
+      <p class="title__sub" data-part="small">{person.tagline}</p>
+      <p class="title__role" data-part="small">{person.role}</p>
+    </div>
+    <p class="title__hint" data-part="hint" aria-hidden="true">Scroll to begin</p>
+    <svg class="title__cloud" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
+      <g data-part="cloud">
+        {puffs.map((p) => <circle cx={p.cx} cy={p.cy} r={p.r} />)}
+        <rect x="-50" y="200" width="1700" height="1400" />
+      </g>
+    </svg>
+  </div>
+</section>
+
+<style>
+  .title__pin {
+    background: var(--navy); color: var(--paper);
+    display: grid; place-items: center; text-align: center;
+  }
+  .title__text { position: relative; padding: 0 16px; }
+  .title__small { font-family: var(--font-title); font-size: clamp(20px, 2.4vw, 34px); margin: 0 0 4px; }
+  .title__name {
+    margin: 0; font-family: var(--font-title); font-weight: 400;
+    font-size: clamp(72px, 13vw, 210px); line-height: .86; letter-spacing: -.01em;
+  }
+  .title__name span { display: block; }
+  .title__sub {
+    margin: 22px 0 0; font: 800 clamp(12px, 1.1vw, 15px)/1.4 var(--font-text);
+    letter-spacing: .22em; text-transform: uppercase; color: var(--rose);
+  }
+  .title__role { margin: 10px 0 0; font: 500 15px/1.4 var(--font-text); opacity: .75; }
+  .title__hint {
+    position: absolute; bottom: 30%; left: 0; right: 0; margin: 0;
+    font: 800 11px/1 var(--font-text); letter-spacing: .3em; text-transform: uppercase; opacity: .6;
+  }
+  .title__cloud { position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; fill: var(--paper); pointer-events: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .title__cloud, .title__hint { display: none; }
+  }
+</style>

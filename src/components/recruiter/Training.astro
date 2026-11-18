@@ -1,0 +1,320 @@
+---
+// DENYEL — ORIGIN · Certifications & training gallery (real previews + accessible viewer)
+import SectionHead from './SectionHead.astro';
+import { isCredentialHref } from '../../data/training';
+import { recruiter as r } from '../../data/story';
+
+const x = r.training;
+const items = x.items;
+if (items.length === 0) return;
+---
+
+<section id="training" class="train" aria-labelledby="training-title">
+  <SectionHead id="training-title" kicker={x.kicker} title={x.title} aside={x.aside} />
+  {x.note ? <p class="train__note">{x.note}</p> : null}
+
+  <ul class="train__list">
+    {items.map((item) => {
+      const hasOriginal = Boolean(item.href && isCredentialHref(item.href));
+      return (
+        <li class="train__item" data-land>
+          <article class="train__card" id={`cred-card-${item.slug}`}>
+            <button
+              type="button"
+              class="train__media"
+              data-cred-open={item.slug}
+              aria-haspopup="dialog"
+              aria-controls={`cred-${item.slug}`}
+              aria-label={`${x.view}: ${item.title}`}
+            >
+              <img
+                class:list={['train__preview', item.kind === 'Badge' && 'is-badge']}
+                src={item.preview}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                width="640"
+                height="400"
+              />
+            </button>
+            <div class="train__body">
+              <span class="train__kind label">{item.category}</span>
+              <h3 class="train__name">
+                <button
+                  type="button"
+                  class="train__name-btn"
+                  data-cred-open={item.slug}
+                  aria-haspopup="dialog"
+                  aria-controls={`cred-${item.slug}`}
+                >
+                  {item.title}
+                </button>
+              </h3>
+              <p class="train__org">{item.org}</p>
+              {item.date && <p class="train__date">{item.date}</p>}
+              <div class="train__acts">
+                <button
+                  type="button"
+                  class="go go--main"
+                  data-cred-open={item.slug}
+                  aria-haspopup="dialog"
+                  aria-controls={`cred-${item.slug}`}
+                >
+                  {x.view}
+                </button>
+                {hasOriginal && (
+                  <a class="go go--second" href={item.href} target="_blank" rel="noopener noreferrer">
+                    {x.original}
+                    <span class="go__arrow" aria-hidden="true">↗</span>
+                  </a>
+                )}
+              </div>
+            </div>
+          </article>
+        </li>
+      );
+    })}
+  </ul>
+
+  {items.map((item) => {
+    const hasOriginal = Boolean(item.href && isCredentialHref(item.href));
+    const isPdf = item.href?.toLowerCase().endsWith('.pdf');
+    return (
+      <dialog
+        class="cred"
+        id={`cred-${item.slug}`}
+        data-cred
+        aria-labelledby={`cred-title-${item.slug}`}
+      >
+        <div class="cred__sheet">
+          <header class="cred__top">
+            <div>
+              <p class="label">{item.category}</p>
+              <h3 id={`cred-title-${item.slug}`} class="cred__title" tabindex="-1">{item.title}</h3>
+              <p class="cred__meta">{item.org} · {item.date}</p>
+            </div>
+            <button type="button" class="cred__x btn-tag" data-cred-close aria-label={x.close}>
+              ✕
+            </button>
+          </header>
+          <div class="cred__scroll">
+            <figure class="cred__figure">
+              <img
+                class:list={['cred__img', item.kind === 'Badge' && 'is-badge']}
+                src={item.preview}
+                alt={item.alt}
+                loading="lazy"
+                decoding="async"
+              />
+            </figure>
+            {item.description && <p class="cred__note">{item.description}</p>}
+            {hasOriginal && (
+              <a class="go go--main" href={item.href} target="_blank" rel="noopener noreferrer">
+                {isPdf ? 'Open original PDF' : x.original}
+                <span class="go__arrow" aria-hidden="true">↗</span>
+              </a>
+            )}
+          </div>
+        </div>
+      </dialog>
+    );
+  })}
+</section>
+
+<style>
+  .train { position: relative; }
+
+  .train__note {
+    max-width: 720px;
+    margin: 0 auto 22px;
+    font: 500 14px/1.5 var(--font-text);
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .train__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+
+  .train__card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    background: var(--card);
+    border: 1.5px solid rgba(20, 17, 19, .12);
+    border-radius: 16px;
+    overflow: clip;
+    box-shadow: 0 14px 24px -22px rgba(20, 17, 19, .45);
+    transition: translate .25s, border-color .25s;
+  }
+  .train__card:hover { translate: 0 -3px; border-color: rgba(0, 183, 255, .4); }
+
+  .train__media {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 10;
+    margin: 0;
+    padding: 14px;
+    border: 0;
+    cursor: pointer;
+    background:
+      linear-gradient(160deg, rgba(0, 183, 255, .08), transparent 55%),
+      #0f1a2b;
+  }
+  .train__media:focus-visible { outline: 3px solid var(--rose); outline-offset: -3px; }
+  .train__preview {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .train__preview.is-badge {
+    width: auto;
+    max-width: 58%;
+    height: auto;
+    max-height: 88%;
+    background: transparent;
+  }
+
+  .train__body {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    padding: 16px 16px 18px;
+    min-width: 0;
+  }
+  .train__kind { color: var(--rose-deep); }
+  .train__name { margin: 0; font: 500 20px/1.2 var(--font-title); }
+  .train__name-btn {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    text-wrap: balance;
+  }
+  .train__name-btn:focus-visible { outline: 3px solid var(--rose); outline-offset: 3px; border-radius: 4px; }
+  .train__org { margin: 0; font: 600 14px/1.4 var(--font-text); color: var(--muted); }
+  .train__date { margin: 0; font: 500 13px/1.3 var(--font-text); }
+  .train__acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .train__acts :global(.go) { min-height: 40px; font-size: 13.5px; }
+
+  .cred {
+    width: min(920px, calc(100vw - 24px));
+    max-height: min(900px, calc(100svh - 24px));
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 18px;
+    background: transparent;
+    color: var(--ink);
+  }
+  .cred::backdrop { background: rgba(11, 21, 36, .72); }
+  .cred[open] { animation: cred-in .28s cubic-bezier(.3, 1.2, .5, 1); }
+  @keyframes cred-in { from { opacity: 0; translate: 0 12px; } }
+
+  .cred__sheet {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    max-height: min(900px, calc(100svh - 24px));
+    background: #f7fafc;
+    border: 1.5px solid rgba(20, 17, 19, .12);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .cred__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: start;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid rgba(20, 17, 19, .1);
+    background: #fff;
+  }
+  .cred__title {
+    margin: 4px 0 0;
+    font: 500 clamp(22px, 2.6vw, 30px)/1.1 var(--font-title);
+    text-wrap: balance;
+  }
+  .cred__meta {
+    margin: 8px 0 0;
+    font: 600 13.5px/1.4 var(--font-text);
+    color: var(--muted);
+  }
+  .cred__x { rotate: 0deg; }
+  .cred__scroll {
+    overflow: auto;
+    padding: 18px 20px 24px;
+    display: grid;
+    gap: 14px;
+    justify-items: start;
+  }
+  .cred__figure {
+    margin: 0;
+    width: 100%;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    border-radius: 12px;
+    background: #0f1a2b;
+  }
+  .cred__img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    max-height: min(58svh, 560px);
+    height: auto;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 4px;
+  }
+  .cred__img.is-badge {
+    width: auto;
+    max-width: min(320px, 70%);
+    background: transparent;
+  }
+  .cred__note {
+    margin: 0;
+    max-width: 62ch;
+    font: 500 13.5px/1.5 var(--font-text);
+    color: var(--muted);
+  }
+
+  @media (max-width: 640px) {
+    .cred {
+      width: 100vw;
+      max-height: 100svh;
+      height: 100svh;
+      margin: 0;
+      border-radius: 0;
+    }
+    .cred__sheet {
+      max-height: 100svh;
+      height: 100svh;
+      border-radius: 0;
+      border: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .train__card, .cred[open] { transition: none; animation: none; }
+  }
+</style>

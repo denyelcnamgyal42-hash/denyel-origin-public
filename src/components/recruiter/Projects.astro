@@ -1,0 +1,534 @@
+---
+// DENYEL — ORIGIN · Featured projects as a 2×2 card grid + accessible case-study dialogs
+import SectionHead from './SectionHead.astro';
+import Emph from '../ui/Emph.astro';
+import Icon from '../ui/Icon.astro';
+import { isVerifiedHref, recruiter as r } from '../../data/story';
+
+const x = r.projects;
+const L = x.labels;
+---
+
+<section id="projects" class="proj" aria-labelledby="projects-title">
+  <SectionHead id="projects-title" kicker={x.kicker} title={x.title} aside={x.aside} />
+
+  <ul class="feat" data-land>
+    {x.featured.map((p) => {
+      const links = p.links.filter((link) => isVerifiedHref(link.href));
+      const github = links.find((l) => l.icon === 'github');
+      return (
+        <li class="feat__item">
+          <article class="feat__card" id={`project-card-${p.id}`}>
+            <div class="feat__media" aria-hidden="true">
+              <p class="feat__kind label">{p.kind}</p>
+              <ol class="feat__pipe">
+                {p.architecture.slice(0, 4).map((node, ni) => (
+                  <li>
+                    <span>{ni + 1}</span>
+                    {node}
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <div class="feat__body">
+              <h3 class="feat__name">{p.name}</h3>
+              <p class="feat__line">{p.line}</p>
+              <ul class="feat__tags">
+                {p.tags.map((t) => <li>{t}</li>)}
+              </ul>
+              <div class="feat__acts">
+                <button
+                  type="button"
+                  class="go go--main"
+                  data-case-open={p.id}
+                  aria-haspopup="dialog"
+                  aria-controls={`case-${p.id}`}
+                >
+                  {x.viewCase}
+                </button>
+                {github && (
+                  <a
+                    class="go go--second"
+                    href={github.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${github.label} for ${p.name}`}
+                  >
+                    <Icon name="github" />{github.label}
+                    <span class="go__arrow" aria-hidden="true">↗</span>
+                    <span class="sr-only">{r.experience.newTab}</span>
+                  </a>
+                )}
+              </div>
+            </div>
+          </article>
+        </li>
+      );
+    })}
+  </ul>
+
+  {x.featured.map((p) => {
+    const links = p.links.filter((link) => isVerifiedHref(link.href));
+    return (
+      <dialog
+        class="case"
+        id={`case-${p.id}`}
+        data-case
+        aria-labelledby={`case-title-${p.id}`}
+      >
+        <div class="case__sheet">
+          <header class="case__top">
+            <div>
+              <p class="label">{p.kind}</p>
+              <h3 id={`case-title-${p.id}`} class="case__title" tabindex="-1">{p.name}</h3>
+            </div>
+            <button type="button" class="case__x btn-tag" data-case-close aria-label={x.closeCase}>
+              ✕
+            </button>
+          </header>
+
+          <div class="case__scroll">
+            <p class="case__overview marked"><Emph text={p.line} /></p>
+
+            {p.shots.length > 0 ? (
+              <section class="case__block" aria-label={L.visuals}>
+                <h4 class="label">{L.visuals}</h4>
+                <ul class="case__shots">
+                  {p.shots.map((shot) => (
+                    <li>
+                      <figure>
+                        {/* Real screenshots only — wired when verified assets exist */}
+                        <figcaption>{shot.caption}</figcaption>
+                      </figure>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : (
+              <section class="case__block case__diagram" aria-label={L.architecture}>
+                <h4 class="label">{L.architecture}</h4>
+                <ol class="arch">
+                  {p.architecture.map((node, ni) => (
+                    <li>
+                      <span class="arch__n">{ni + 1}</span>
+                      <span>{node}</span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
+
+            <section class="case__block">
+              <h4 class="label">{L.problem}</h4>
+              <p class="marked"><Emph text={p.problem} /></p>
+            </section>
+            <section class="case__block">
+              <h4 class="label">{L.solution}</h4>
+              <p class="marked"><Emph text={p.solution} /></p>
+            </section>
+
+            {p.shots.length > 0 && (
+              <section class="case__block">
+                <h4 class="label">{L.architecture}</h4>
+                <ol class="arch arch--light">
+                  {p.architecture.map((node, ni) => (
+                    <li>
+                      <span class="arch__n">{ni + 1}</span>
+                      <span>{node}</span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
+
+            <section class="case__block">
+              <h4 class="label">{L.contribution}</h4>
+              <ul class="marked">
+                {p.contribution.map((pt) => (
+                  <li><Emph text={pt} /></li>
+                ))}
+              </ul>
+            </section>
+            <section class="case__block">
+              <h4 class="label">{L.challenges}</h4>
+              <ul class="marked">
+                {p.challenges.map((pt) => (
+                  <li><Emph text={pt} /></li>
+                ))}
+              </ul>
+            </section>
+            {p.results.length > 0 && (
+              <section class="case__block">
+                <h4 class="label">{L.results}</h4>
+                <ul class="marked">
+                  {p.results.map((pt) => (
+                    <li><Emph text={pt} /></li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            <section class="case__block">
+              <h4 class="label">{L.stack}</h4>
+              <ul class="case__stack">
+                {p.stack.map((s) => <li>{s}</li>)}
+              </ul>
+            </section>
+
+            {links.length > 0 && (
+              <div class="case__links">
+                {links.map((link, k) => (
+                  <a
+                    class={`go go--${k ? 'second' : 'main'}`}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Icon name={link.icon} />{link.label}
+                    <span class="go__arrow" aria-hidden="true">↗</span>
+                    <span class="sr-only">{r.experience.newTab}</span>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </dialog>
+    );
+  })}
+
+  {x.small.length > 0 && (
+    <div class="addl">
+      <h3 class="addl__title">{x.smallTitle}</h3>
+      <ul class="small">
+        {x.small.map((p) => (
+          <li id={`project-${p.id}`} class="small__card" data-land>
+            <h4 class="small__name">{p.name}</h4>
+            <p class="small__kind">{p.kind}</p>
+            <p class="small__line">{p.line}</p>
+            <details class="small__more">
+              <summary>{x.more}</summary>
+              <ul class="marked">
+                {p.points.map((pt) => (
+                  <li><Emph text={pt} /></li>
+                ))}
+              </ul>
+            </details>
+            <p class="small__stack">{p.stack.join(' · ')}</p>
+            {p.links.filter((l) => isVerifiedHref(l.href)).length > 0 && (
+              <p class="small__links">
+                {p.links.filter((l) => isVerifiedHref(l.href)).map((link) => (
+                  <a href={link.href} target="_blank" rel="noopener noreferrer">
+                    <Icon name="github" />{link.label}
+                    <span aria-hidden="true">↗</span>
+                    <span class="sr-only">{r.experience.newTab}</span>
+                  </a>
+                ))}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+</section>
+
+<style>
+  .proj { position: relative; }
+
+  .feat {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+
+  .feat__card {
+    display: grid;
+    height: 100%;
+    background: var(--card);
+    border: 1.5px solid rgba(20, 17, 19, .12);
+    border-radius: 18px;
+    overflow: clip;
+    box-shadow: 0 16px 28px -24px rgba(20, 17, 19, .5);
+    transition: translate .25s, border-color .25s;
+  }
+  .feat__card:hover { translate: 0 -3px; border-color: rgba(0, 183, 255, .35); }
+
+  .feat__media {
+    aspect-ratio: 16 / 10;
+    display: grid;
+    align-content: center;
+    gap: 12px;
+    padding: 18px 18px 16px;
+    background:
+      linear-gradient(160deg, rgba(0, 183, 255, .14), transparent 50%),
+      #0f1a2b;
+    color: #f4f7fb;
+  }
+  .feat__kind { margin: 0; color: rgba(244, 247, 251, .55); }
+  .feat__pipe {
+    display: grid;
+    gap: 7px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .feat__pipe li {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 8px;
+    align-items: center;
+    padding: 7px 10px;
+    border: 1px solid rgba(244, 247, 251, .14);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, .04);
+    font: 600 12.5px/1.3 var(--font-text);
+  }
+  .feat__pipe span {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(0, 183, 255, .2);
+    color: #7ddcff;
+    font: 700 10px/1 var(--font-mono);
+  }
+
+  .feat__body {
+    display: grid;
+    gap: 10px;
+    padding: 18px 18px 16px;
+    align-content: start;
+  }
+  .feat__name {
+    margin: 0;
+    font: 500 clamp(22px, 2vw, 26px)/1.1 var(--font-title);
+    text-wrap: balance;
+  }
+  .feat__line {
+    margin: 0;
+    font: 500 14.5px/1.5 var(--font-text);
+    color: var(--ink);
+  }
+  .feat__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .feat__tags li {
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 183, 255, .35);
+    background: rgba(0, 183, 255, .08);
+    font: 600 12px/1.2 var(--font-text);
+  }
+  .feat__acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .feat__acts :global(.go) { min-height: 42px; }
+
+  .case {
+    width: min(860px, calc(100vw - 24px));
+    max-height: min(860px, calc(100svh - 24px));
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 18px;
+    background: transparent;
+    color: var(--ink);
+  }
+  .case::backdrop { background: rgba(11, 21, 36, .72); }
+  .case[open] { animation: case-in .28s cubic-bezier(.3, 1.2, .5, 1); }
+  @keyframes case-in { from { opacity: 0; translate: 0 12px; } }
+
+  .case__sheet {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    max-height: min(860px, calc(100svh - 24px));
+    background: #f7fafc;
+    border: 1.5px solid rgba(20, 17, 19, .12);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .case__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: start;
+    padding: 20px 22px 14px;
+    border-bottom: 1px solid rgba(20, 17, 19, .1);
+    background: #fff;
+  }
+  .case__title {
+    margin: 4px 0 0;
+    font: 500 clamp(26px, 3vw, 34px)/1.08 var(--font-title);
+  }
+  .case__x { rotate: 0deg; }
+  .case__scroll {
+    overflow: auto;
+    padding: 22px 22px 28px;
+    display: grid;
+    gap: 18px;
+  }
+  .case__overview {
+    margin: 0;
+    max-width: 62ch;
+    font: 600 16px/1.55 var(--font-text);
+  }
+  .case__block { display: grid; gap: 8px; max-width: 68ch; }
+  .case__block h4 { margin: 0; }
+  .case__block p, .case__block ul {
+    margin: 0;
+    font: 500 15px/1.6 var(--font-text);
+  }
+  .case__block ul { display: grid; gap: 8px; padding: 0 0 0 18px; }
+  .case__block li::marker { color: var(--rose-deep); }
+  .case__block :global(em), .case__overview :global(em) { --marker: rgba(0, 183, 255, .32); }
+
+  .case__diagram {
+    max-width: none;
+    padding: 16px;
+    border-radius: 14px;
+    background:
+      linear-gradient(160deg, rgba(0, 183, 255, .12), transparent 50%),
+      #0f1a2b;
+    color: #f4f7fb;
+  }
+  .case__diagram .label { color: rgba(244, 247, 251, .55); }
+
+  .arch {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .arch li {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    border: 1px solid rgba(244, 247, 251, .16);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .04);
+    font: 600 14px/1.4 var(--font-text);
+  }
+  .arch--light li {
+    border-color: rgba(20, 17, 19, .12);
+    background: #fff;
+    color: var(--ink);
+  }
+  .arch__n {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0, 183, 255, .18);
+    color: #7ddcff;
+    font: 700 12px/1 var(--font-mono);
+  }
+  .arch--light .arch__n { color: var(--rose-deep); background: rgba(0, 183, 255, .12); }
+
+  .case__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .case__stack li {
+    padding: 7px 11px;
+    border-radius: 999px;
+    border: 1px solid rgba(20, 17, 19, .14);
+    background: #fff;
+    font: 600 13px/1.2 var(--font-text);
+  }
+  .case__links { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 4px; }
+
+  .addl { max-width: 1120px; margin: 48px auto 0; }
+  .addl__title {
+    margin: 0 0 16px;
+    font: 500 clamp(24px, 2.6vw, 30px)/1.1 var(--font-title);
+  }
+  .small {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .small__card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px 16px;
+    background: var(--card);
+    border: 1.5px solid rgba(20, 17, 19, .12);
+    border-radius: 14px;
+  }
+  .small__name { margin: 0; font: 500 20px/1.15 var(--font-title); }
+  .small__kind { margin: 0; font: 600 12.5px/1.3 var(--font-text); color: var(--muted); }
+  .small__line { margin: 0; font: 500 14px/1.45 var(--font-text); }
+  .small__more summary {
+    cursor: pointer;
+    width: fit-content;
+    font: 700 13px/1.4 var(--font-text);
+    color: var(--rose-deep);
+  }
+  .small__more summary:focus-visible { outline: 3px solid var(--rose); outline-offset: 2px; border-radius: 4px; }
+  .small__more ul {
+    display: grid;
+    gap: 6px;
+    margin: 10px 0 0;
+    padding: 0 0 0 18px;
+    font: 500 13.5px/1.5 var(--font-text);
+  }
+  .small__stack { margin: auto 0 0; font: 600 12.5px/1.4 var(--font-text); color: var(--muted); }
+  .small__links { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 0; }
+  .small__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 700 13px/1 var(--font-text);
+    color: var(--ink);
+  }
+
+  @media (max-width: 900px) {
+    .feat { grid-template-columns: 1fr; }
+    .small { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .case {
+      width: 100vw;
+      max-height: 100svh;
+      height: 100svh;
+      margin: 0;
+      border-radius: 0;
+    }
+    .case__sheet {
+      max-height: 100svh;
+      height: 100svh;
+      border-radius: 0;
+      border: 0;
+    }
+    .case__scroll { padding: 18px 16px 28px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .feat__card, .case[open] { transition: none; animation: none; }
+  }
+</style>

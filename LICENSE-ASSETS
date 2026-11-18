@@ -1,0 +1,22 @@
+Copyright (c) 2026 Ines Cherif. All rights reserved.
+
+The MIT license in LICENSE applies to the source code only (the .astro, .ts,
+.css and .mjs files and the configuration files).
+
+Everything else in this repository is NOT licensed for reuse:
+
+  - the illustrations, frames, stickers, textures and every image in
+    src/assets/, public/ and media/
+  - the story, chapter texts, captions and characters (src/data/story.ts)
+  - the CV files in public/cv/ and all personal information
+  - the VOL.01 name, logo and the overall look of the site
+
+You may view them here and link to the live site
+(https://inescherif.github.io/). You may not copy, reuse, redistribute,
+modify or publish them, or use this portfolio as a template with its art,
+story or identity, without prior written permission from Ines Cherif.
+
+If you build something from the code, replace all of the above with your
+own content.
+
+Permission requests: https://www.linkedin.com/in/ines-cherif-b32143233

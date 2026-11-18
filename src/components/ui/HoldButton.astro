@@ -1,0 +1,37 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// "Press and keep pressed" button. Behaviour lives in scripts/fx/hold.ts.
+interface Props {
+  name: string;
+  label: string;
+  hint: string;
+  class?: string;
+}
+const { name, label, hint, class: className } = Astro.props;
+---
+
+<button class:list={['hold', className]} data-hold={name} aria-label={hint}>
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+    <circle class="hold__track" cx="50" cy="50" r="46"></circle>
+    <circle class="hold__ring" cx="50" cy="50" r="46"></circle>
+  </svg>
+  <span set:html={label} />
+</button>
+
+<style>
+  .hold {
+    position: absolute; z-index: 9; width: 112px; height: 112px; border-radius: 50%;
+    display: grid; place-items: center; padding: 0;
+    background: #fff; color: var(--ink); border: 2px solid var(--ink);
+    font: 800 12px/1.15 var(--font-text); letter-spacing: .14em; text-transform: uppercase;
+    touch-action: none; user-select: none; -webkit-user-select: none;
+  }
+  svg { position: absolute; inset: -8px; width: calc(100% + 16px); height: calc(100% + 16px); rotate: -90deg; overflow: visible; }
+  .hold__track { fill: none; stroke: rgba(20, 17, 19, .15); stroke-width: 3; }
+  .hold__ring { fill: none; stroke: var(--rose-deep); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 289; stroke-dashoffset: 289; }
+  span { position: relative; }
+
+  @media (max-width: 760px) {
+    .hold { width: 96px; height: 96px; }
+  }
+</style>

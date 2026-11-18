@@ -1,0 +1,54 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// One kitten of the cat hunt, hiding faint in a section's margin. It shows itself as the mouse comes near (on
+// phones it wiggles now and then); a press catches it and it goes into the hero's sticker sheet (scripts/recruiter/hunt.ts).
+import { Image } from 'astro:assets';
+import { recruiter as r } from '../../data/story';
+
+interface Props { id: 'wave' | 'nap' | 'jump' }
+const { id } = Astro.props;
+const n = r.hunt.kittens.findIndex((k) => k.id === id) + 1; // kitten-1…3.png, in the order of story.ts
+const files = import.meta.glob<{ default: ImageMetadata }>('../../assets/frames/recruiter/kittens/*.png', { eager: true });
+const src = files[`../../assets/frames/recruiter/kittens/kitten-${n}.png`].default;
+---
+
+<button type="button" class={`kitten kitten--${id}`} data-kitten={id} aria-label={r.hunt.catch}>
+  <Image src={src} alt="" widths={[100, 200]} sizes="(max-width: 760px) 62px, 88px" class="lift" draggable="false" />
+</button>
+
+<style>
+  .kitten { position: absolute; z-index: 4; padding: 0; border: 0; background: none; cursor: pointer; opacity: .14; transition: rotate .3s, scale .3s; }
+  .kitten img { display: block; width: 88px; height: auto; }
+  .kitten:hover, .kitten:focus-visible { opacity: 1 !important; rotate: -8deg; scale: 1.08; }
+  .kitten.is-caught { pointer-events: none; animation: kitten-caught .75s cubic-bezier(.3, 1.2, .5, 1) forwards; }
+
+  /* where each one hides: the empty corners of Projects, Education and Community */
+  .kitten--wave { top: 10px; right: 3.5%; }
+  .kitten--jump { bottom: 2px; left: 2%; }
+  .kitten--jump img { width: 76px; }
+  .kitten--nap { bottom: 24px; right: 10%; }
+  .kitten--nap img { width: 100px; }
+
+  @keyframes kitten-caught {
+    35% { opacity: 1; scale: 1.3; rotate: -14deg; translate: 0 -18px; }
+    100% { opacity: 0; scale: .6; rotate: 10deg; translate: 0 -110px; }
+  }
+  @keyframes kitten-wiggle { 0%, 88%, 100% { rotate: 0deg; } 91% { rotate: -9deg; } 94% { rotate: 7deg; } 97% { rotate: -4deg; } }
+
+  /* no mouse to come near: a little more visible, and it wiggles now and then */
+  @media (hover: none) {
+    .kitten { opacity: .5; animation: kitten-wiggle 6s ease-in-out infinite; }
+    .kitten--jump { animation-delay: 2s; }
+    .kitten--nap { animation-delay: 4s; }
+  }
+  @media (max-width: 760px) {
+    .kitten img { width: 62px; }
+    .kitten--nap img { width: 72px; }
+    .kitten--wave { top: 20px; right: 16px; }
+    .kitten--jump { bottom: 28px; left: 16px; }
+    .kitten--nap { bottom: 30px; right: auto; left: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .kitten { animation: none !important; transition: none; }
+  }
+</style>

@@ -1,0 +1,95 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// The mission board: three sealed files pinned to a stone wall, lit by one candle.
+// Fixed to the screen inside a clipped section, so every mission scene shares the same view.
+// The camera moves (dive into a file, pull back) live in scripts/fx/board.ts.
+import { Image } from 'astro:assets';
+import { missions } from '../../data/story';
+import wall from '../../assets/frames/ch3-missions/board.jpg';
+import { BOARD_FILES } from '../../scripts/fx/board';
+
+interface Props {
+  done?: number[]; // files already stamped complete when the scene starts
+  cut?: boolean;   // add the three files as separate pieces that can leave the wall (fx/board.ts cutFiles)
+}
+const { done = [], cut = false } = Astro.props;
+---
+
+<div class="board" aria-hidden="true">
+  <div class="board__plate board__cam" data-part="board-cam">
+    <Image src={wall} alt="" widths={[960, 1920]} sizes="(max-aspect-ratio: 3/4) 150vw, 100vw" loading="lazy" />
+    {missions.files.map((f, i) => (
+      <div class="board__file" style={`--x:${BOARD_FILES[i].x}%;--y:${BOARD_FILES[i].y}%;--r:${BOARD_FILES[i].r}deg`}>
+        <b class="board__no">{f.no}</b>
+        <span class="board__label"><b>{f.name}</b><small>{f.year}</small></span>
+        <span class="board__stamp"><i data-part="file-stamp" data-done={done.includes(i) || undefined}>{missions.complete}</i></span>
+      </div>
+    ))}
+  </div>
+  {cut && (
+    <div class="board__plate board__pieces" data-part="pieces">
+      {BOARD_FILES.map((f) => <div class="board__piece" data-part="piece" style={`clip-path:polygon(${f.outline});transform-origin:${f.x}% ${f.y}%`}></div>)}
+    </div>
+  )}
+</div>
+
+<style>
+  .board { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
+  .board__plate {
+    /* the wall covers the screen; centred without transforms (GSAP owns them).
+       Aspect matches board.jpg (1920×1080) so % dossier anchors stay on the papers. */
+    --w: max(100vw, 100svh * 1920 / 1080);
+    position: absolute; width: var(--w); height: calc(var(--w) * 1080 / 1920);
+    left: calc(50% - var(--w) / 2); top: calc(50% - var(--w) * 540 / 1920);
+  }
+  .board__cam {
+    will-change: transform;
+    /* the candle (bottom centre of the wall) lights the room: the first scene grows --light from 0 */
+    --light: 150vmax;
+    -webkit-mask: radial-gradient(circle at 50% 93%, #000 var(--light), transparent calc(var(--light) + 28vmax));
+            mask: radial-gradient(circle at 50% 93%, #000 var(--light), transparent calc(var(--light) + 28vmax));
+  }
+  .board__plate :global(img) { width: 100%; height: 100%; max-width: none; }
+  /* Hidden until Mission 03 cutFiles + GSAP autoAlpha reveal (talan.ts). */
+  .board__pieces { visibility: hidden; opacity: 0; pointer-events: none; }
+  .board__piece { position: absolute; inset: 0; will-change: transform; }
+
+  /* number above centre, label below, LOGGED stamp on the paper — one layer per file */
+  .board__file {
+    position: absolute; left: var(--x); top: var(--y); width: 0; height: 0; rotate: var(--r);
+    color: var(--ink); text-align: center; text-transform: uppercase;
+    z-index: 1;
+  }
+  .board__no { mix-blend-mode: multiply; opacity: .88; } /* inked into the paper */
+  .board__no, .board__label { position: absolute; left: 0; translate: -50% 0; white-space: nowrap; }
+  .board__no { bottom: calc(var(--w) * .055); font: 400 calc(var(--w) * .048)/1 var(--font-title); }
+  .board__label {
+    top: calc(var(--w) * .042); rotate: -2deg;
+    display: grid; justify-items: center; gap: .3em;
+    padding: .35em .7em .45em; background: var(--paper);
+    border: calc(var(--w) * .0013) solid var(--ink);
+    box-shadow: .12em .12em 0 var(--ink); /* a slip of paper, slightly lifted off the file */
+    font-size: calc(var(--w) * .016);
+    max-width: calc(var(--w) * .2);
+    white-space: normal;
+  }
+  .board__label b { font: 400 1em/1.05 var(--font-title); text-transform: none; }
+  .board__label small { font: 800 .42em/1 var(--font-text); letter-spacing: .3em; color: var(--rose-deep); }
+  .board__stamp { position: absolute; left: 0; top: 0; translate: -50% -50%; rotate: -14deg; z-index: 2; }
+  .board__stamp i {
+    display: block; padding: .35em .6em; border: .18em solid var(--rose-deep); color: var(--rose-deep);
+    background: rgba(243, 239, 231, .6);
+    font: 800 calc(var(--w) * .014)/1 var(--font-text); font-style: normal; letter-spacing: .2em;
+    visibility: hidden;
+    opacity: 0;
+  }
+  .board__stamp i[data-done] { visibility: visible; opacity: 1; }
+
+  /* phones: the wall is a wide band across the middle of the ink, the three files all in view */
+  @media (max-aspect-ratio: 3/4) {
+    .board__plate { --w: 150vw; }
+    .board__no { font-size: calc(var(--w) * .07); }
+    .board__label { font-size: calc(var(--w) * .026); }
+    .board__stamp i { font-size: calc(var(--w) * .022); }
+  }
+</style>

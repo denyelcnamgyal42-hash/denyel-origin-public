@@ -1,0 +1,154 @@
+---
+// DENYEL — ORIGIN · Leadership & interests (two editorial feature cards + interest strip)
+import SectionHead from './SectionHead.astro';
+import Emph from '../ui/Emph.astro';
+import { recruiter as r } from '../../data/story';
+
+const x = r.leadership;
+const features = x.features ?? [];
+if (features.length === 0) return;
+---
+
+<section id="leadership" class="lead" aria-labelledby="leadership-title">
+  <SectionHead id="leadership-title" kicker={x.kicker} title={x.title} aside={x.aside} />
+
+  <ul class="lead__features">
+    {features.map((item) => (
+      <li class="lead__feature" data-land>
+        <article class="lead__card" aria-labelledby={`lead-${item.id}`}>
+          <p class="lead__kind label">{item.kind}</p>
+          <h3 id={`lead-${item.id}`} class="lead__name">{item.title}</h3>
+          <p class="lead__meta">{item.where}<br />{item.when}</p>
+          <p class="lead__line marked"><Emph text={item.line} /></p>
+          <ul class="lead__focus" aria-label="Highlights">
+            {item.focus.map((f) => <li>{f}</li>)}
+          </ul>
+        </article>
+      </li>
+    ))}
+  </ul>
+
+  {x.outside?.items?.length > 0 && (
+    <div class="lead__outside" data-land>
+      <p class="lead__outside-label label">{x.outside.label}</p>
+      <ul class="lead__chips">
+        {x.outside.items.map((chip) => (
+          <li>
+            <span class="lead__chip" data-chip={chip.toLowerCase()}>
+              <span class="lead__chip-mark" aria-hidden="true"></span>
+              {chip}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+</section>
+
+<style>
+  .lead { position: relative; }
+
+  .lead__features {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lead__card {
+    display: grid;
+    gap: 10px;
+    height: 100%;
+    padding: 26px 24px 22px;
+    background: var(--card);
+    border: 1.5px solid rgba(20, 17, 19, .12);
+    border-radius: 16px;
+    box-shadow: 0 14px 24px -22px rgba(20, 17, 19, .45);
+  }
+
+  .lead__kind { margin: 0; color: var(--rose-deep); }
+  .lead__name {
+    margin: 0;
+    font: 500 clamp(24px, 2.4vw, 30px)/1.12 var(--font-title);
+    text-wrap: balance;
+  }
+  .lead__meta {
+    margin: 0;
+    font: 600 13.5px/1.45 var(--font-text);
+    color: var(--muted);
+  }
+  .lead__line {
+    margin: 2px 0 0;
+    max-width: 42ch;
+    font: 500 15px/1.55 var(--font-text);
+  }
+  .lead__line :global(em) { --marker: rgba(0, 183, 255, .32); }
+
+  .lead__focus {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .lead__focus li {
+    padding: 6px 11px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 183, 255, .35);
+    background: rgba(0, 183, 255, .08);
+    font: 600 12px/1.2 var(--font-text);
+  }
+
+  .lead__outside {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+    max-width: 960px;
+    margin: 22px auto 0;
+    padding: 14px 18px;
+    border: 1px dashed rgba(20, 17, 19, .16);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .55);
+  }
+  .lead__outside-label {
+    margin: 0;
+    color: var(--ink);
+  }
+  .lead__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .lead__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px 7px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(20, 17, 19, .12);
+    background: #fff;
+    font: 600 13px/1.2 var(--font-text);
+    color: var(--ink);
+  }
+  .lead__chip-mark {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--rose-deep);
+    box-shadow: 0 0 0 3px rgba(0, 183, 255, .16);
+  }
+
+  @media (max-width: 760px) {
+    .lead__features { grid-template-columns: 1fr; gap: 14px; }
+    .lead__card { padding: 22px 18px 18px; }
+    .lead__outside { margin-top: 16px; padding: 12px 14px; }
+  }
+</style>

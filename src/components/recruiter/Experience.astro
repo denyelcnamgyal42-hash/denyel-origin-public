@@ -1,0 +1,199 @@
+---
+// DENYEL — ORIGIN · Experience (concise summary; workflow behind disclosure)
+import { Image } from 'astro:assets';
+import SectionHead from './SectionHead.astro';
+import Emph from '../ui/Emph.astro';
+import Icon from '../ui/Icon.astro';
+import { isVerifiedHref, recruiter as r } from '../../data/story';
+import jaggle from '../../assets/logos/jaggle.svg';
+
+const x = r.experience;
+const logos: Record<string, ImageMetadata> = { jaggle };
+
+const workflows: Record<string, string[]> = {
+  jaggle: [
+    'Guest / client conversation',
+    'LangChain booking flow',
+    'Collect requirements',
+    'Structured booking records',
+    'Team review of prototype',
+  ],
+};
+---
+
+<section id="experience" class="exp" aria-labelledby="experience-title">
+  <SectionHead id="experience-title" kicker={x.kicker} title={x.title} aside={x.aside} />
+
+  <ul class="jobs">
+    {x.jobs.map((job) => {
+      const flow = workflows[job.id] ?? job.stack;
+      const summary = 'summary' in job && typeof job.summary === 'string' ? job.summary : job.points[0];
+      return (
+        <li class="job" id={`job-${job.id}`} data-land data-mission>
+          <article class="job__card">
+            <header class="job__head">
+              {logos[job.id] && <Image src={logos[job.id]} alt="" height={40} class={`job__logo--${job.id}`} />}
+              <div>
+                <p class="label">{job.company}</p>
+                <h3 class="job__role">{job.role}</h3>
+                <p class="job__meta">{job.kind} · {job.when} · {job.where}</p>
+              </div>
+            </header>
+
+            <p class="job__summary marked"><Emph text={summary} /></p>
+
+            <dl class="job__facts">
+              <div>
+                <dt class="label">{x.labels.project}</dt>
+                <dd>{job.project}</dd>
+              </div>
+              <div>
+                <dt class="label">{x.labels.stack}</dt>
+                <dd>{job.stack.join(' · ')}</dd>
+              </div>
+            </dl>
+
+            <details class="job__more">
+              <summary>{x.workflow}</summary>
+              <ol class="job__flow">
+                {flow.map((step, si) => (
+                  <li>
+                    <span>{si + 1}</span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+              <ul class="job__points marked">
+                {job.points.map((pt) => (
+                  <li><Emph text={pt} /></li>
+                ))}
+              </ul>
+            </details>
+
+            <div class="job__links">
+              {job.links.filter((link) => isVerifiedHref(link.href)).map((link, k) => (
+                <a class={`go go--${k ? 'second' : 'main'}`} href={link.href} target="_blank" rel="noopener noreferrer">
+                  <Icon name={link.icon} />{link.label}
+                  <span class="go__arrow" aria-hidden="true">↗</span>
+                  <span class="sr-only">{x.newTab}</span>
+                </a>
+              ))}
+              <a class="job__manga" href="/" data-bleed="ink">{x.manga} ↗</a>
+            </div>
+          </article>
+        </li>
+      );
+    })}
+  </ul>
+</section>
+
+<style>
+  .exp { position: relative; }
+
+  .jobs {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    max-width: 820px;
+    display: grid;
+    gap: 18px;
+  }
+
+  .job__card {
+    padding: 24px 22px;
+    background: var(--card);
+    border: 1.5px solid rgba(20, 17, 19, .12);
+    border-radius: 16px;
+    box-shadow: 0 14px 24px -22px rgba(20, 17, 19, .45);
+  }
+
+  .job__head {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .job__logo--jaggle { height: 28px; width: auto; }
+  .job__role { margin: 2px 0 0; font: 500 clamp(24px, 2.4vw, 30px)/1.1 var(--font-title); }
+  .job__meta { margin: 6px 0 0; font: 600 13.5px/1.4 var(--font-text); color: var(--muted); }
+
+  .job__summary {
+    margin: 0 0 16px;
+    font: 500 15px/1.55 var(--font-text);
+    max-width: 62ch;
+  }
+  .job__summary :global(em) { --marker: rgba(0, 183, 255, .35); }
+
+  .job__facts {
+    display: grid;
+    gap: 10px;
+    margin: 0 0 14px;
+  }
+  .job__facts dd { margin: 2px 0 0; font: 600 14px/1.45 var(--font-text); }
+
+  .job__more summary {
+    cursor: pointer;
+    width: fit-content;
+    font: 700 14px/1.4 var(--font-text);
+    color: var(--rose-deep);
+  }
+  .job__more summary:focus-visible { outline: 3px solid var(--rose); outline-offset: 2px; border-radius: 4px; }
+
+  .job__flow {
+    display: grid;
+    gap: 8px;
+    margin: 14px 0;
+    padding: 14px;
+    list-style: none;
+    border-radius: 12px;
+    background:
+      linear-gradient(160deg, rgba(0, 183, 255, .12), transparent 55%),
+      #0f1a2b;
+    color: #f4f7fb;
+  }
+  .job__flow li {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid rgba(244, 247, 251, .14);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .04);
+    font: 600 13px/1.35 var(--font-text);
+  }
+  .job__flow span {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(0, 183, 255, .18);
+    color: #7ddcff;
+    font: 700 11px/1 var(--font-mono);
+  }
+
+  .job__points {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 8px;
+    padding: 0 0 0 18px;
+    font: 500 14.5px/1.55 var(--font-text);
+  }
+  .job__points li::marker { color: var(--rose-deep); }
+  .job__points :global(em) { --marker: rgba(0, 183, 255, .35); }
+
+  .job__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 12px;
+    margin-top: 16px;
+  }
+  .job__manga {
+    font: 600 14px/1.4 var(--font-text);
+    color: var(--rose-deep);
+    text-decoration: none;
+  }
+  .job__manga:hover { text-decoration: underline; text-underline-offset: 4px; }
+</style>

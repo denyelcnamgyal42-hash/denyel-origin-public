@@ -1,0 +1,130 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// The campus cat in the corner. It greets by the time of day; a tap (or an "ask me about…" note in the
+// hero) opens its chat: pre-written answers about Denyel, each with a link to the right section, and more
+// questions to ask. Pet it (it jumps) or let it nap. Behaviour: scripts/recruiter/mascot.ts.
+import { Image } from 'astro:assets';
+import Emph from '../ui/Emph.astro';
+import { recruiter as r } from '../../data/story';
+import { art } from '../../scripts/recruiter/art';
+
+import napping from '../../assets/frames/recruiter/mascot/cat-1.png';
+import waving from '../../assets/frames/recruiter/mascot/cat-2.png';
+import jumping from '../../assets/frames/recruiter/mascot/cat-3.png';
+
+const m = r.mascot;
+const poses = [['wave', waving], ['nap', napping], ['jump', jumping]] as const;
+---
+
+<div class="mascot" data-mascot data-pose="wave">
+  <div class="mascot__chat" role="dialog" aria-label={m.name} hidden data-chat>
+    <div class="mascot__top">
+      <button type="button" class="mascot__link" data-home hidden>‹ {m.back}</button>
+      <button type="button" class="mascot__x" data-close aria-label={m.close}>×</button>
+    </div>
+    <div class="mascot__talk" aria-live="polite">
+      {m.qa.map((qa) => (
+        <article data-qa={qa.id} hidden>
+          <p class="mascot__q">{qa.q}</p>
+          <div class="mascot__a marked" style="--marker:rgba(231, 169, 48, .5)">
+            {qa.a.map((line) => <p><Emph text={line} /></p>)}
+            {qa.go && <a class="mascot__go" href={`#${qa.go}`} data-go>{m.go} →</a>}
+            {qa.href && <a class="mascot__go" href={qa.href} data-bleed="ink">{m.go} →</a>}
+          </div>
+        </article>
+      ))}
+    </div>
+    <ul class="mascot__asks">
+      {m.qa.map((qa) => <li><button type="button" data-ask={qa.id}><span aria-hidden="true">↳</span> {qa.q}</button></li>)}
+    </ul>
+    <div class="mascot__acts">
+      <button type="button" class="btn-sticker btn-sticker--rose" style="--tilt:-2deg" data-act="jump"><span class="mascot__ico" set:html={art.paw} />{m.pet}</button>
+      <button type="button" class="btn-sticker btn-sticker--lilac" style="--tilt:2deg" data-act="nap"><span class="mascot__ico" set:html={art.moon} />{m.nap}</button>
+    </div>
+    <p class="mascot__sign">{m.sign}</p>
+  </div>
+
+  <button type="button" class="mascot__bubble" data-open>
+    <span data-greet data-morning={m.greet.morning} data-afternoon={m.greet.afternoon} data-evening={m.greet.evening}>{m.greet.afternoon}</span> {m.hello}
+  </button>
+  <a class="mascot__bubble mascot__say" href="#about" hidden aria-live="polite" data-say data-found={r.hunt.found} data-done={r.hunt.done}></a>
+  <button type="button" class="mascot__cat" data-open aria-label={m.name}>
+    {poses.map(([pose, src]) => (
+      <Image src={src} alt="" widths={[110, 220]} sizes="96px" class="lift" data-cat={pose} draggable="false" data-stamp />
+    ))}
+  </button>
+</div>
+
+<style>
+  .mascot { position: fixed; right: 14px; bottom: 12px; z-index: 80; display: grid; justify-items: end; gap: 8px; pointer-events: none; }
+  .mascot > * { pointer-events: auto; }
+
+  .mascot__cat { position: relative; width: 96px; height: 96px; padding: 0; border: 0; background: none; cursor: pointer; }
+  .mascot__cat img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: bottom; opacity: 0; transition: opacity .2s; }
+  .mascot[data-pose='wave'] [data-cat='wave'], .mascot[data-pose='nap'] [data-cat='nap'], .mascot[data-pose='jump'] [data-cat='jump'] { opacity: 1; }
+  .mascot[data-pose='wave'] .mascot__cat { animation: cat-sway 3.2s ease-in-out infinite; transform-origin: bottom center; }
+  .mascot[data-pose='jump'] .mascot__cat { animation: cat-jump .6s cubic-bezier(.3, 1.6, .5, 1) 2; }
+
+  /* a manga speech balloon: round, inked border, a tail pointing down at the cat */
+  .mascot__bubble {
+    position: relative; max-width: 240px; padding: 14px 20px; margin-right: 46px;
+    font: 700 13px/1.35 var(--font-text); text-align: center; color: var(--ink);
+    background: #fff; border: 2px solid var(--ink); border-radius: 50% / 46%;
+    cursor: pointer; animation: bubble-in .5s cubic-bezier(.3, 1.4, .5, 1) 1.6s backwards;
+  }
+  .mascot__bubble::before, .mascot__bubble::after { content: ''; position: absolute; width: 0; height: 0; border-style: solid; border-color: transparent; }
+  .mascot__bubble::before { left: 66%; bottom: -14px; border-width: 15px 3px 0 13px; border-top-color: var(--ink); }
+  .mascot__bubble::after { left: calc(66% + 2.6px); bottom: -9.4px; border-width: 11px 2px 0 9px; border-top-color: #fff; }
+  .mascot__bubble[hidden] { display: none; }
+  .mascot.is-quiet .mascot__bubble { opacity: 0; scale: .8; pointer-events: none; }
+  .mascot__bubble { transition: opacity .3s, scale .3s; }
+  /* what it says during the cat hunt: shown anywhere on the page, at once */
+  .mascot__say { display: block; text-decoration: none; animation-delay: 0s; }
+  .mascot.is-quiet .mascot__say { opacity: 1; scale: 1; pointer-events: auto; }
+
+  .mascot__chat {
+    width: min(360px, calc(100vw - 28px)); max-height: calc(100svh - 140px); overflow: auto;
+    display: grid; gap: 12px; padding: 12px 16px 14px;
+    background: var(--card); border: 1.5px solid var(--line); border-radius: 18px;
+    box-shadow: 0 24px 40px -22px rgba(20, 17, 19, .55);
+    animation: bubble-in .35s cubic-bezier(.3, 1.4, .5, 1);
+    transform-origin: bottom right;
+  }
+  .mascot__chat[hidden] { display: none; }
+  .mascot__top { display: flex; justify-content: space-between; align-items: center; min-height: 28px; }
+  .mascot__link, .mascot__x { border: 0; background: none; cursor: pointer; color: var(--muted); font: 600 14px/1 var(--font-text); }
+  .mascot__x { margin-left: auto; font-size: 24px; }
+  .mascot__q {
+    justify-self: end; margin: 0 0 10px auto; width: fit-content; max-width: 85%;
+    padding: 9px 13px; border-radius: 14px 14px 4px 14px; background: var(--ink); color: var(--paper); font: 600 14px/1.35 var(--font-text);
+  }
+  .mascot__a { padding: 12px 14px; border: 1.5px solid rgba(20, 17, 19, .14); border-radius: 14px 14px 14px 4px; background: #fff; font: 500 14px/1.5 var(--font-text); }
+  .mascot__a p { margin: 0 0 8px; }
+  .mascot__go { display: inline-block; margin-top: 2px; color: var(--rose-deep); font: 800 12px/1 var(--font-text); letter-spacing: .06em; text-transform: uppercase; text-decoration: none; }
+  .mascot__go:hover { text-decoration: underline; }
+  .mascot__asks { margin: 0; padding: 10px 0 0; list-style: none; border-top: 1.5px dashed rgba(20, 17, 19, .16); display: grid; gap: 2px; }
+  .mascot__asks button { width: 100%; padding: 7px 4px; border: 0; background: none; text-align: left; cursor: pointer; color: var(--ink); font: 500 14px/1.35 var(--font-text); border-radius: 8px; }
+  .mascot__asks button:hover { background: var(--rose-wash); }
+  .mascot__asks span { color: var(--muted); }
+  .mascot__acts { display: flex; justify-content: center; gap: 14px; padding: 4px 0; }
+  .mascot__ico { display: block; width: 20px; height: 20px; }
+  .mascot__ico :global(svg) { display: block; width: 100%; height: 100%; }
+  .mascot__sign { margin: 0; text-align: center; color: var(--muted); font: 500 11px/1.3 var(--font-text); }
+
+  @keyframes cat-sway { 50% { rotate: -3deg; } }
+  @keyframes cat-jump { 50% { translate: 0 -26px; rotate: 6deg; } }
+  @keyframes bubble-in { from { opacity: 0; scale: .8; translate: 0 10px; } }
+
+  @media (max-width: 760px) {
+    .mascot { right: 8px; bottom: 8px; }
+    .mascot__cat { width: 74px; height: 74px; transition: translate .45s cubic-bezier(.3, 1.3, .5, 1), rotate .45s cubic-bezier(.3, 1.3, .5, 1); }
+    /* while the reader scrolls it hides half behind the edge (it would cover the ends of lines) and peeks back on stop */
+    .mascot.is-tucked .mascot__cat { translate: 58% 0; rotate: -10deg; transition-duration: .3s; }
+    .mascot__bubble { display: none; }
+    .mascot__say:not([hidden]) { display: block; max-width: 200px; margin-right: 26px; padding: 11px 16px; font-size: 12.5px; }
+    .mascot__chat { max-height: calc(100svh - 130px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mascot__cat, .mascot__bubble, .mascot__chat { animation: none !important; }
+  }
+</style>

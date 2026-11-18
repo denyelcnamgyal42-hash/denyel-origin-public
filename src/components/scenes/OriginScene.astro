@@ -1,0 +1,88 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+import { Image } from 'astro:assets';
+import Caption from '../ui/Caption.astro';
+import HoldButton from '../ui/HoldButton.astro';
+import InkWipe from '../ui/InkWipe.astro';
+import { origin } from '../../data/story';
+
+import portWide from '../../assets/frames/ch1-origin/port-wide.jpg';
+import port from '../../assets/frames/ch1-origin/port.jpg';
+import ines from '../../assets/frames/ch1-origin/ines.png';
+import eyes from '../../assets/frames/ch1-origin/eyes.jpg';
+import hand from '../../assets/frames/ch1-origin/hand.jpg';
+
+// living zones of each drawing (fractions of the image), animated by fx/living.ts
+// (only the sky and the water move: walls, towers and the city stay still)
+const live = {
+  port: [
+    { kind: 'sky', box: [0.02, 0.02, 0.7, 0.5], amp: 0.0025 },
+    { kind: 'sky', box: [0.7, 0.02, 0.98, 0.18], amp: 0.0025 },
+    { kind: 'water', box: [0.02, 0.63, 1, 0.76], amp: 0.0005 },
+  ],
+  ines: [
+    { kind: 'cloth', box: [-0.1, 0.08, 0.68, 0.52], anchor: [0.8, 0.25], amp: 0.025 },
+    { kind: 'cloth', box: [0.18, 0.59, 0.95, 0.95], anchor: [0.87, 0.57], amp: 0.02 },
+    { kind: 'still', box: [0.71, 0.04, 0.92, 0.21] }, // her face
+  ],
+};
+---
+
+<section class="scene origin" id="story" data-scene="origin" aria-label="Chapter 1: Origin">
+  <div class="scene__pin origin__pin">
+    <p class="tag tag--top" data-part="tag">{origin.label}</p>
+
+    <div class="panel origin__panel" data-part="panel" data-depth="-10">
+      <div class="panel__cam" data-part="cam">
+        <Image data-part="wide" src={portWide} alt="Bhutanese valley establishing panel, DENYEL Origin" widths={[960, 1584, 1920]} sizes="90vw" loading="eager" />
+        <!-- Living WebGL samples this bitmap: serve full plate, not a 960w srcset candidate -->
+        <div class="layer" data-part="port" data-live={JSON.stringify(live.port)}>
+          <Image src={port} alt="Bhutanese valley landscape panel, DENYEL Origin" widths={[1920]} sizes="90vw" loading="eager" />
+        </div>
+        <div class="origin__ines" data-part="ines" data-live={JSON.stringify(live.ines)}>
+          <Image src={ines} alt="Denyel character cutout for Origin chapter" widths={[480, 960]} sizes="40vw" loading="eager" />
+        </div>
+      </div>
+    </div>
+
+    <div class="inset origin__eyes" data-part="eyes" data-depth="22">
+      <Image src={eyes} alt="Close-up eyes inset, DENYEL Origin" widths={[640, 1377, 1920]} sizes="34vw" loading="eager" />
+    </div>
+    <div class="inset origin__hand" data-part="hand" data-depth="28">
+      <Image src={hand} alt="Hands on laptop inset, DENYEL Origin" widths={[640, 1376, 1920]} sizes="30vw" loading="eager" />
+    </div>
+
+    {origin.captions.map((text, i) => <Caption text={text} class={`origin__cap origin__cap--${i + 1}`} data-caption={i + 1} />)}
+
+    <div class="overlay speed" data-part="speed" aria-hidden="true"></div>
+    <HoldButton name="dive" label="Hold" hint="Hold to dive into the light" class="origin__hold" />
+    <InkWipe />
+  </div>
+</section>
+
+<style>
+  .origin__pin { background: var(--paper); }
+  .origin__panel { left: 7vw; right: 7vw; top: 13vh; bottom: 7vh; }
+  /* she stands on the quay, in front of the storm (a cutout, so the sky never darkens her face) */
+  .origin__ines { position: absolute; left: 37%; bottom: 3%; height: 92%; aspect-ratio: 480 / 712; }
+  .origin__eyes { left: 3vw; top: 22vh; width: 30vw; aspect-ratio: 16 / 9; }
+  .origin__hand { right: 3vw; bottom: 10vh; width: 25vw; aspect-ratio: 16 / 9; }
+  /* caption positions on large screens; phones use the shared rule in comic.css */
+  @media (min-width: 761px) {
+    .origin :global(.origin__cap--1), .origin :global(.origin__cap--2) { left: 10vw; bottom: 13vh; }
+    .origin :global(.origin__cap--3) { right: 10vw; top: 24vh; }
+  }
+  .origin :global(.origin__hold) { left: 50%; bottom: 14vh; translate: -50% 0; opacity: 0; visibility: hidden; }
+
+  @media (max-width: 760px) {
+    .origin__panel { left: 16px; right: 16px; top: 20vh; bottom: auto; height: 44vh; }
+    .origin__ines { left: 4%; height: 86%; } /* clear of the hand close-up */
+    .origin__panel :global([data-part='wide']) { object-position: 80% 50%; }
+    .origin__eyes { left: 16px; top: auto; bottom: 26vh; width: 62vw; }
+    .origin__hand { right: 16px; bottom: auto; top: max(13vh, 128px); width: 48vw; } /* below the chapter tag */
+    .origin :global(.origin__hold) { bottom: 22vh; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .origin :global(.origin__hold) { display: none; }
+  }
+</style>

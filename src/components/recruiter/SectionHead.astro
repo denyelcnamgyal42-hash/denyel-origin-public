@@ -1,0 +1,48 @@
+---
+// DENYEL — ORIGIN · Recruiter section head (compact; aside no longer overlaps title)
+interface Props { id: string; kicker: string; title: string; aside: string }
+const { id, kicker, title, aside } = Astro.props;
+---
+
+<header class="shead">
+  <span class="shead__kicker label">{kicker}</span>
+  <h2 id={id} class="shead__title">{title}</h2>
+  {aside && <p class="shead__aside hand">{aside}</p>}
+</header>
+
+<style>
+  .shead {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    margin: 0 auto clamp(28px, 4vw, 40px);
+    max-width: 920px;
+    text-align: center;
+  }
+  .shead__kicker {
+    padding: 4px 9px;
+    background: var(--ink);
+    color: var(--paper);
+    rotate: -2deg;
+  }
+  .shead__title {
+    margin: 0;
+    font: 400 clamp(32px, 4.2vw, 48px)/1.05 var(--font-title);
+    letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  .shead__aside {
+    margin: 0;
+    max-width: 36ch;
+    font-size: clamp(18px, 2vw, 22px);
+    line-height: 1.15;
+    color: var(--rose-deep);
+    text-wrap: balance;
+  }
+
+  @media (max-width: 760px) {
+    .shead { margin-bottom: 24px; gap: 6px; }
+    .shead__aside { font-size: 18px; }
+  }
+</style>

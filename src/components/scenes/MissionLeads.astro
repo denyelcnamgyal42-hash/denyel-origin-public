@@ -1,0 +1,178 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// Mission 02 · Leads Provider, "the data dungeon". File 02 bursts into a storm of sheets that
+// opens on the archive vault; she stops the storm (128,000+), merges the duplicates, DRAGs a
+// broken record into the quality gate (it bounces off), and six of ten windows light up.
+// Then the page folds back into its file. Timeline: scripts/scenes/leads.ts.
+import { Image } from 'astro:assets';
+import Caption from '../ui/Caption.astro';
+import InkBackground from '../ui/InkBackground.astro';
+import MissionBoard from '../ui/MissionBoard.astro';
+import { leads } from '../../data/story';
+
+import vault from '../../assets/frames/ch3-missions/leads/vault.jpg';
+import storm from '../../assets/frames/ch3-missions/leads/storm.jpg';
+import sheets from '../../assets/frames/ch3-missions/leads/sheets.png';
+import merge from '../../assets/frames/ch3-missions/leads/merge.jpg';
+import gate from '../../assets/frames/ch3-missions/leads/gate.jpg';
+import windows from '../../assets/frames/ch3-missions/leads/windows.jpg';
+
+const c = leads.captions;
+// the six windows lit rose in the drawing (% of the image: left, top, width, height)
+const lit = [[3.7, 73, 4.6, 22.6], [23.2, 73, 4.6, 22.6], [42.8, 73, 4.6, 22.6], [53.4, 73, 4.6, 22.6], [72.9, 73, 4.4, 22.6], [92.2, 73, 4.6, 22.6]];
+const showSampleCount = typeof leads.sfx.companies === 'number' && leads.sfx.companies > 0;
+const showReachCount = typeof leads.sfx.reachable === 'string' && leads.sfx.reachable.length > 0 && leads.sfx.reachable !== 'TBD';
+---
+
+<section class="scene leads seam" data-scene="leads" aria-label="Mission 02, Dzonglish NLP">
+  <InkBackground fixed />
+  <MissionBoard done={[0]} />
+  <div class="scene__pin">
+    <div class="leads__stage" data-part="stage">
+      <div class="leads__inside" data-part="inside">
+        <div class="leads__vault" data-part="vault">
+          <Image src={vault} alt="Dzonglish NLP — language-data vault" widths={[960, 1376]} sizes="100vw" loading="lazy" />
+        </div>
+        <Image class="leads__storm ink-layer" data-part="storm" data-depth="20" src={storm} alt="Calming a storm of language samples" widths={[784]} sizes="60vw" loading="lazy" />
+        <Image class="leads__fly" data-part="fly" src={sheets} alt="" widths={[1408]} sizes="140vw" loading="lazy" />
+        {showSampleCount && (
+          <p class="sfx-count leads__count" data-part="count-companies" data-depth="34" aria-hidden="true"><b data-part="companies">0</b><span>{leads.sfxLabels.companies}</span></p>
+        )}
+        <div class="inset leads__merge" data-part="merge" data-depth="16">
+          <Image src={merge} alt="Merging bilingual Dzonglish records" widths={[700, 1408]} sizes="40vw" loading="lazy" />
+        </div>
+
+        <div class="panel leads__frame" data-part="gate">
+          <Image src={gate} alt="Quality gate for language work" widths={[960, 1526]} sizes="90vw" loading="lazy" />
+          <div class="leads__passage" data-part="passage"></div>
+        </div>
+        <div class="leads__reject" data-part="reject">
+          <p class="leads__gate-hint label" data-part="gate-hint">{leads.drag}</p>
+          <button class="leads__record" data-part="record" type="button" aria-label={leads.drag}>
+            <b>{leads.record.name}</b>
+            <span>{leads.record.id}</span>
+            <span>{leads.record.line}</span>
+            <i class="leads__x" data-part="x" aria-hidden="true">{leads.reject}</i>
+            <small>Drag to gate →</small>
+          </button>
+          <p class="leads__rejected" data-part="rejected" hidden>{leads.rejected}</p>
+        </div>
+
+        <div class="panel leads__frame leads__street" data-part="windows">
+          <div class="panel__map" data-part="map" style="--ar: calc(1301 / 463)">
+            <Image src={windows} alt="Windows into bilingual understanding" widths={[960, 1301]} sizes="120vw" loading="lazy" />
+            {lit.map(([x, y, w, h]) => <i class="leads__dark" data-part="dark" style={`left:${x}%;top:${y}%;width:${w}%;height:${h}%`}></i>)}
+          </div>
+        </div>
+        {showReachCount && (
+          <p class="sfx-count leads__count leads__count--reach" data-part="count-reach" aria-hidden="true"><b>{leads.sfx.reachable}</b><span>{leads.sfxLabels.reachable}</span></p>
+        )}
+        <div class="overlay speed" data-part="speed" aria-hidden="true"></div>
+      </div>
+
+      <!-- the file bursts into sheets flying at the camera: two layers at different depths -->
+      <div class="leads__burst" aria-hidden="true">
+        <Image class="leads__burst-sheet" data-part="burst" src={sheets} alt="" widths={[1408]} sizes="140vw" loading="lazy" />
+        <Image class="leads__burst-sheet" data-part="burst" src={sheets} alt="" widths={[1408]} sizes="140vw" loading="lazy" />
+      </div>
+
+      {Object.entries(c).map(([name, text]) => (
+        <Caption text={text} class={`leads__cap leads__cap--${name}${name === 'next' ? ' caption--dark' : ''}`} data-caption={name} />
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .leads { z-index: 2; clip-path: inset(0); }
+  .leads__stage { position: absolute; inset: 0; color: var(--ink); }
+  .leads__inside {
+    position: absolute; inset: 0; overflow: hidden; background: var(--paper); will-change: transform;
+    box-shadow: 0 0 0 18px var(--paper), 0 0 0 26px var(--ink); /* a framed page when it folds into its file */
+  }
+
+  .leads__vault { position: absolute; inset: 0; will-change: transform; }
+  .leads__vault :global(img) { width: 100%; height: 100%; max-width: none; object-fit: cover; }
+  .leads :global(.leads__storm) {
+    --w: min(56vw, 82vh);
+    position: absolute; z-index: 2; width: var(--w); max-width: none; height: calc(var(--w) * 768 / 784);
+    left: calc(60% - var(--w) / 2); top: calc(52% - var(--w) * 384 / 784);
+    filter: brightness(1.08) contrast(1.15);
+    -webkit-mask: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%);
+            mask: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%);
+  }
+  .leads :global(.leads__fly) {
+    position: absolute; z-index: 4; width: 140vw; max-width: none; height: auto; left: -20vw; top: 6vh; pointer-events: none;
+  }
+  .leads__count { left: 6vw; top: 14vh; z-index: 5; }
+  .leads__merge { right: 5vw; bottom: 9vh; width: 40vw; aspect-ratio: 1408 / 768; z-index: 6; }
+  .leads__merge :global(img) { scale: 1; }
+
+  .leads__frame { --pw: 86vw; --ph: 80vh; left: 7vw; right: 7vw; top: 13vh; bottom: 7vh; }
+  .leads__passage { position: absolute; left: 42%; right: 42%; top: 30%; bottom: 10%; }
+  .leads__reject {
+    position: absolute; z-index: 6; left: 11vw; top: 42vh;
+    display: grid; gap: 10px; justify-items: start; max-width: 260px;
+  }
+  .leads__gate-hint {
+    margin: 0;
+    padding: 8px 10px;
+    background: rgba(243, 239, 231, .92);
+    border: 1.5px solid var(--ink);
+    color: var(--ink);
+    max-width: 24ch;
+  }
+  .leads__record {
+    position: relative; display: grid; gap: 4px; justify-items: start; text-align: left;
+    width: 240px; padding: 14px 16px 16px; rotate: -4deg;
+    background: #fff; color: var(--ink); border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink);
+    font: 700 12px/1.3 var(--font-text); letter-spacing: .04em; text-transform: uppercase;
+    touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab;
+  }
+  .leads__record b { font: 400 22px/1 var(--font-title); text-transform: none; letter-spacing: 0; }
+  .leads__record small { margin-top: 8px; font: 800 10px/1 var(--font-text); letter-spacing: .18em; color: var(--rose-deep); }
+  .leads__x {
+    position: absolute; right: 10px; top: -6px; font: 400 92px/1 var(--font-title); font-style: normal;
+    color: var(--rose-deep); visibility: hidden;
+  }
+  .leads__rejected {
+    margin: 0;
+    padding: 8px 10px;
+    background: var(--ink);
+    color: var(--paper);
+    font: 700 13px/1.35 var(--font-text);
+  }
+
+  .leads__street { --ph: 56vh; top: 22vh; bottom: 22vh; }
+  .leads__dark { position: absolute; background: var(--ink); }
+  .leads__count--reach { left: auto; right: 8vw; top: 4vh; justify-items: end; z-index: 7; }
+
+  .leads__burst { position: absolute; inset: 0; z-index: 7; pointer-events: none; overflow: hidden; }
+  .leads :global(.leads__burst-sheet) {
+    --w: 120vw;
+    position: absolute; width: var(--w); max-width: none; height: calc(var(--w) * 768 / 1408);
+    left: calc(50% - var(--w) / 2); top: calc(50% - var(--w) * 384 / 1408);
+  }
+
+  @media (min-width: 761px) {
+    .leads :global(.leads__cap) { left: 9vw; bottom: 9vh; }
+    .leads :global(.leads__cap--storm) { left: 6vw; bottom: auto; top: 52vh; }
+    .leads :global(.leads__cap--merge) { left: 6vw; bottom: 12vh; }
+    .leads :global(.leads__cap--gate) { left: auto; right: 9vw; bottom: 11vh; }
+    .leads :global(.leads__cap--windows) { left: 9vw; bottom: 6vh; }
+    .leads :global(.leads__cap--next) { left: 50%; bottom: 6vh; translate: -50% 0; }
+  }
+
+  @media (max-width: 760px) {
+    .leads :global(.leads__storm) { --w: 120vw; left: calc(50% - var(--w) / 2); top: calc(44% - var(--w) * 384 / 784); }
+    .leads__count { left: 16px; top: 10vh; }
+    .leads__merge { left: 16px; right: 16px; width: auto; bottom: auto; top: 50vh; }
+    .leads__frame { --pw: calc(100vw - 32px); --ph: 44vh; left: 16px; right: 16px; top: 20vh; bottom: auto; height: 44vh; }
+    .leads__passage { left: 30%; right: 30%; }
+    .leads__reject { left: 16px; top: 66vh; }
+    .leads__record { width: 200px; padding: 10px 12px 12px; }
+    .leads__street { --ph: 36vh; top: 26vh; height: 36vh; }
+    .leads__count--reach { right: 16px; top: 10vh; }
+    .leads :global(.leads__burst-sheet) { --w: 260vw; }
+  }
+</style>

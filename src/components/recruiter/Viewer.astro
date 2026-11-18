@@ -1,0 +1,25 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// The viewer: one print (a photo, a screenshot, a diagram) large on a dark veil. Once per page; the prints
+// open it (scripts/recruiter/shots.ts). Close: the button, Esc, or a click on the veil.
+import { recruiter as r } from '../../data/story';
+---
+
+<dialog class="viewer" data-viewer aria-label={r.prints.enlarge}>
+  <div class="viewer__foot">
+    <p class="viewer__caption hand"></p>
+    <button type="button" class="btn-tag" data-viewer-close>{r.prints.close} ✕</button>
+  </div>
+</dialog>
+
+<style>
+  .viewer { max-width: min(1100px, calc(100vw - 32px)); max-height: calc(100svh - 32px); padding: 12px 12px 0; border: 0; background: #fff; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .6); }
+  .viewer::backdrop { background: rgba(20, 17, 19, .72); }
+  .viewer :global(img) { display: block; max-width: 100%; max-height: calc(100svh - 130px); margin: 0 auto; object-fit: contain; }
+  .viewer__foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 4px 12px; }
+  .viewer__caption { margin: 0; font-size: 22px; line-height: 1.1; }
+  .viewer__foot .btn-tag { flex: none; white-space: nowrap; }
+  .viewer[open] { animation: viewer-in .3s cubic-bezier(.3, 1.3, .5, 1); }
+  @keyframes viewer-in { from { scale: .92; opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .viewer[open] { animation: none; } }
+</style>

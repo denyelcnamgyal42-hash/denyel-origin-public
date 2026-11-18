@@ -1,0 +1,519 @@
+---
+// DENYEL — ORIGIN · Chapter 2 credential gallery (real previews; no placeholder scroll/seal art)
+import { isCredentialHref } from '../../data/training';
+import { training } from '../../data/story';
+
+const tilts = [-1.6, 1.2, -0.8, 1.4, -1.1];
+const certs = training.certifications;
+---
+
+<section class="certs" data-scene="certs" aria-labelledby="certs-title">
+  <h2 class="chapter-title certs__title" id="certs-title">{training.scrollsTitle}</h2>
+  {certs.length === 0 ? (
+    <p class="certs__empty">{training.hold}</p>
+  ) : (
+    <ol class="certs__list">
+      {certs.map((cert, i) => {
+        const hasPreview = Boolean(cert.preview);
+        const hasProof = Boolean(cert.href && isCredentialHref(cert.href));
+        const isBadge = cert.kind === 'Badge';
+        const dialogId = `story-cred-${cert.slug}`;
+        return (
+          <li
+            class:list={['scroll', isBadge && 'is-badge']}
+            data-part="scroll"
+            style={`--tilt:${tilts[i % tilts.length]}deg`}
+          >
+            <article class="scroll__card">
+              <button
+                type="button"
+                class="scroll__media"
+                data-story-cred-open={cert.slug}
+                aria-haspopup="dialog"
+                aria-controls={dialogId}
+                aria-label={`${training.verify}: ${cert.title}`}
+              >
+                {hasPreview ? (
+                  <img
+                    class:list={['scroll__preview', isBadge && 'is-badge']}
+                    src={cert.preview}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width={isBadge ? 320 : 640}
+                    height={isBadge ? 320 : 400}
+                  />
+                ) : (
+                  <span class="scroll__fallback" aria-hidden="true">{cert.seal}</span>
+                )}
+              </button>
+              <div class="scroll__meta">
+                {'category' in cert && cert.category && (
+                  <p class="scroll__kind">{cert.category}</p>
+                )}
+                <h3 class="scroll__title">
+                  <button
+                    type="button"
+                    class="scroll__title-btn"
+                    data-story-cred-open={cert.slug}
+                    aria-haspopup="dialog"
+                    aria-controls={dialogId}
+                  >
+                    {cert.title}
+                  </button>
+                </h3>
+                <p class="scroll__by">{cert.by}</p>
+                {cert.date && <p class="scroll__date">{cert.date}</p>}
+                <div class="scroll__acts">
+                  <button
+                    type="button"
+                    class="scroll__open"
+                    data-story-cred-open={cert.slug}
+                    aria-haspopup="dialog"
+                    aria-controls={dialogId}
+                  >
+                    {training.verify}
+                  </button>
+                  {hasProof && (
+                    <a
+                      class="scroll__original"
+                      href={cert.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Original
+                      <span aria-hidden="true"> ↗</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </article>
+          </li>
+        );
+      })}
+    </ol>
+  )}
+
+  {certs.map((cert) => {
+    const hasProof = Boolean(cert.href && isCredentialHref(cert.href));
+    const isBadge = cert.kind === 'Badge';
+    const isPdf = cert.href?.toLowerCase().endsWith('.pdf');
+    return (
+      <dialog
+        class="story-cred"
+        id={`story-cred-${cert.slug}`}
+        data-story-cred
+        aria-labelledby={`story-cred-title-${cert.slug}`}
+      >
+        <div class="story-cred__sheet">
+          <header class="story-cred__top">
+            <div>
+              {'category' in cert && cert.category && (
+                <p class="story-cred__kind">{cert.category}</p>
+              )}
+              <h3
+                id={`story-cred-title-${cert.slug}`}
+                class="story-cred__title"
+                tabindex="-1"
+              >
+                {cert.title}
+              </h3>
+              <p class="story-cred__meta">
+                {cert.by}
+                {cert.date ? ` · ${cert.date}` : ''}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="story-cred__x"
+              data-story-cred-close
+              aria-label="Close credential"
+            >
+              ✕
+            </button>
+          </header>
+          <div class="story-cred__body">
+            <figure class="story-cred__figure">
+              <img
+                class:list={['story-cred__img', isBadge && 'is-badge']}
+                src={cert.preview}
+                alt={cert.alt}
+                loading="lazy"
+                decoding="async"
+              />
+            </figure>
+            {'description' in cert && cert.description && (
+              <p class="story-cred__note">{cert.description}</p>
+            )}
+            {hasProof && (
+              <a
+                class="story-cred__link"
+                href={cert.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {isPdf ? 'Open original PDF' : 'View original'}
+                <span aria-hidden="true"> ↗</span>
+              </a>
+            )}
+          </div>
+        </div>
+      </dialog>
+    );
+  })}
+</section>
+
+<style>
+  .certs {
+    position: relative;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 140px var(--edge) 120px;
+    display: grid;
+    justify-items: center;
+    gap: 48px;
+    overflow: clip;
+  }
+  .certs__title { font-size: clamp(48px, 7vw, 110px); text-align: center; }
+  .certs__empty {
+    max-width: 36rem;
+    margin: 0;
+    text-align: center;
+    font: 600 16px/1.5 var(--font-text);
+    color: var(--rose-deep);
+  }
+
+  .certs__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: min(1120px, 100%);
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 28px 22px;
+    align-items: stretch;
+  }
+  .scroll {
+    grid-column: span 2;
+    position: relative;
+    rotate: var(--tilt);
+    transition:
+      rotate .35s cubic-bezier(.2, .8, .2, 1),
+      translate .35s cubic-bezier(.2, .8, .2, 1),
+      scale .35s cubic-bezier(.2, .8, .2, 1),
+      filter .35s;
+  }
+  /* 3 on top, 2 centered below */
+  .scroll:nth-child(4) { grid-column: 2 / 4; }
+  .scroll:nth-child(5) { grid-column: 4 / 6; }
+
+  .scroll__card {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    background:
+      linear-gradient(180deg, #fff 0%, #f7fafc 100%);
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    box-shadow:
+      0 1px 0 rgba(7, 11, 18, .04),
+      0 14px 28px -18px rgba(7, 11, 18, .45);
+    overflow: clip;
+  }
+
+  .scroll__media {
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 14px 14px 6px;
+    border: 0;
+    min-height: 0;
+    background:
+      linear-gradient(160deg, rgba(0, 183, 255, .06), transparent 55%),
+      #dfe7f0;
+    cursor: pointer;
+  }
+  .scroll__media:focus-visible {
+    outline: 3px solid var(--rose-deep);
+    outline-offset: -3px;
+  }
+
+  .scroll__preview {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 250px;
+    object-fit: contain;
+    object-position: center;
+    background: #fff;
+    border: 1px solid rgba(7, 11, 18, .14);
+    border-radius: 2px;
+    box-shadow: 0 6px 14px -10px rgba(7, 11, 18, .45);
+  }
+  .scroll.is-badge .scroll__media {
+    padding: 28px 18px 18px;
+    background:
+      radial-gradient(circle at 50% 42%, rgba(0, 183, 255, .14), transparent 58%),
+      #0f1a2b;
+  }
+  .scroll__preview.is-badge {
+    width: min(188px, 64%);
+    height: auto;
+    max-height: 188px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+  .scroll__fallback {
+    font: 400 42px/1 var(--font-title);
+    color: var(--rose-deep);
+  }
+
+  .scroll__meta {
+    display: grid;
+    gap: 6px;
+    padding: 14px 16px 16px;
+    text-align: left;
+    min-width: 0;
+  }
+  .scroll__kind {
+    margin: 0;
+    font: 800 11px/1.2 var(--font-text);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--rose-deep);
+  }
+  .scroll__title {
+    margin: 0;
+    font-family: var(--font-title);
+    font-weight: 400;
+    font-size: clamp(18px, 1.7vw, 22px);
+    line-height: 1.15;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .scroll__title-btn {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .scroll__title-btn:focus-visible {
+    outline: 3px solid var(--rose-deep);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+  .scroll__by {
+    margin: 0;
+    font: 700 13px/1.35 var(--font-text);
+    color: rgba(7, 11, 18, .82);
+  }
+  .scroll__date {
+    margin: 0;
+    font: 600 12px/1.3 var(--font-text);
+    letter-spacing: .04em;
+    color: rgba(7, 11, 18, .7);
+  }
+  .scroll__acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .scroll__open,
+  .scroll__original {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1.5px solid var(--ink);
+    border-radius: 6px;
+    font: 700 12px/1 var(--font-text);
+    letter-spacing: .04em;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .scroll__open {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .scroll__original {
+    background: #fff;
+    color: var(--ink);
+  }
+  .scroll__open:hover,
+  .scroll__open:focus-visible {
+    background: var(--rose-deep);
+    border-color: var(--rose-deep);
+  }
+  .scroll__original:hover,
+  .scroll__original:focus-visible {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .scroll__open:focus-visible,
+  .scroll__original:focus-visible {
+    outline: 3px solid var(--rose);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) {
+    .scroll:hover {
+      rotate: 0deg;
+      translate: 0 -8px;
+      scale: 1.02;
+      filter: drop-shadow(0 18px 18px rgb(0 0 0 / .14));
+      z-index: 2;
+    }
+  }
+
+  .story-cred {
+    margin: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    max-width: min(920px, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+  }
+  .story-cred::backdrop {
+    background: rgba(7, 11, 18, .72);
+    backdrop-filter: blur(2px);
+  }
+  .story-cred__sheet {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    max-height: calc(100dvh - 24px);
+    background: #fff;
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    overflow: clip;
+    box-shadow: 0 24px 48px -20px rgba(0, 0, 0, .55);
+  }
+  .story-cred__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: start;
+    padding: 18px 18px 12px;
+    border-bottom: 1px solid rgba(7, 11, 18, .1);
+  }
+  .story-cred__kind {
+    margin: 0 0 4px;
+    font: 800 11px/1.2 var(--font-text);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--rose-deep);
+  }
+  .story-cred__title {
+    margin: 0;
+    font: 400 clamp(22px, 3vw, 30px)/1.15 var(--font-title);
+    color: var(--ink);
+  }
+  .story-cred__meta {
+    margin: 6px 0 0;
+    font: 600 14px/1.4 var(--font-text);
+    color: rgba(7, 11, 18, .65);
+  }
+  .story-cred__x {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--ink);
+    color: var(--paper);
+    font: 700 16px/1 var(--font-text);
+    cursor: pointer;
+  }
+  .story-cred__x:hover,
+  .story-cred__x:focus-visible {
+    background: var(--rose-deep);
+  }
+  .story-cred__body {
+    overflow: auto;
+    padding: 16px 18px 20px;
+    display: grid;
+    gap: 14px;
+    justify-items: start;
+  }
+  .story-cred__figure {
+    margin: 0;
+    width: 100%;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: #0f1a2b;
+    border-radius: 8px;
+  }
+  .story-cred__img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: min(62dvh, 640px);
+    height: auto;
+    object-fit: contain;
+    background: #fff;
+  }
+  .story-cred__img.is-badge {
+    max-height: min(48dvh, 420px);
+    background: transparent;
+  }
+  .story-cred__note {
+    margin: 0;
+    font: 500 13px/1.5 var(--font-text);
+    color: rgba(7, 11, 18, .62);
+    max-width: 62ch;
+  }
+  .story-cred__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 8px;
+    background: var(--ink);
+    color: var(--paper);
+    font: 700 13px/1 var(--font-text);
+    text-decoration: none;
+  }
+  .story-cred__link:hover,
+  .story-cred__link:focus-visible {
+    background: var(--rose-deep);
+  }
+  .story-cred[open] { animation: story-cred-in .28s cubic-bezier(.3, 1.2, .5, 1); }
+  @keyframes story-cred-in {
+    from { opacity: 0; translate: 0 12px; }
+  }
+
+  @media (max-width: 980px) {
+    .certs__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .scroll,
+    .scroll:nth-child(4),
+    .scroll:nth-child(5) { grid-column: auto; }
+  }
+
+  @media (max-width: 640px) {
+    .certs { padding: 110px var(--edge) 96px; gap: 36px; }
+    .certs__list {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    .scroll { rotate: 0deg; }
+    .scroll__media { min-height: 210px; }
+    .scroll__preview { max-height: 240px; }
+    .scroll__preview.is-badge {
+      width: min(160px, 48%);
+      max-height: 180px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll { transition: none; }
+    .story-cred[open] { animation: none; }
+  }
+</style>

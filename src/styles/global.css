@@ -1,0 +1,75 @@
+/* DENYEL — ORIGIN · MIT mechanics from VOL.01; original palette (not the reserved VOL.01 look) */
+@import '@fontsource/federant/400.css';
+@import '@fontsource/archivo/500.css';
+@import '@fontsource/archivo/700.css';
+@import '@fontsource/archivo/800.css';
+@import './comic.css';
+
+:root {
+  /* midnight navy · white · ink black · electric blue (--rose* kept as accent aliases for existing CSS) */
+  --navy: #0b1a2e;
+  --paper: #f5f8fc;
+  --ink: #070b12;
+  --rose: #00b7ff;
+  --rose-deep: #1490ff;
+  --rose-light: #7ddcff;
+
+  --font-title: 'Federant', 'Georgia', serif;
+  --font-text: 'Archivo', system-ui, sans-serif;
+
+  --edge: clamp(16px, 2.4vw, 32px);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+body.is-locked { overflow: hidden; }
+/* nothing in the story may stick out sideways: phones would zoom the whole page out to show it
+   (panoramas, maps and falling cards travel beyond the screen on purpose). `clip`, not `hidden`,
+   so it is not a scroll container and the pinned scenes still work */
+main { overflow-x: clip; }
+
+img { display: block; max-width: 100%; }
+/* read by screen readers, not shown */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+:focus-visible { outline: 2px solid var(--rose-deep); outline-offset: 3px; }
+
+/* paper grain over everything, like printed paper */
+.grain {
+  position: fixed; inset: 0; z-index: 90; pointer-events: none;
+  opacity: 0.18; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.07 0 0 0 0 0.07 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* custom cursor (pointer devices only, pages that draw it): an ink dot ringed with paper, so it stays
+   visible on paper, on ink and on grey hatching alike; above everything, even the page-change wash */
+.cursor {
+  position: fixed; left: 0; top: 0; z-index: 300; pointer-events: none;
+  width: 14px; height: 14px; margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 0 2px var(--paper);
+  transition: width .25s, height .25s, margin .25s, background .25s, box-shadow .25s;
+  display: none;
+}
+.cursor.is-big {
+  width: 54px; height: 54px; margin: -27px 0 0 -27px;
+  background: rgba(0, 183, 255, .28);
+  box-shadow: 0 0 0 2px var(--ink), 0 0 0 4px var(--paper);
+}
+@media (hover: hover) and (pointer: fine) {
+  .cursor { display: block; }
+  body:has(> .cursor), body:has(> .cursor) a, body:has(> .cursor) button { cursor: none; }
+}

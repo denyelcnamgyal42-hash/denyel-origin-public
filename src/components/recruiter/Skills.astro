@@ -1,0 +1,81 @@
+---
+// DENYEL — ORIGIN · Technical skills (compact category badges; no fake scores)
+import SectionHead from './SectionHead.astro';
+import { powers, recruiter as r } from '../../data/story';
+
+const x = r.skills;
+
+const groups = powers.groups.map((g) => ({
+  title: x.rename[g.title] ?? g.title,
+  star: g.star,
+  skills: g.skills,
+}));
+---
+
+<section id="skills" class="skills" aria-labelledby="skills-title">
+  <SectionHead id="skills-title" kicker={x.kicker} title={x.title} aside={x.aside} />
+
+  <ul class="skills__groups">
+    {groups.map((g) => (
+      <li class="skills__group" data-land>
+        <h3 class="skills__title label">{g.title}</h3>
+        <ul class="skills__list">
+          {g.skills.map((s) => (
+            <li class:list={['skills__chip', s === g.star && 'is-star']}>
+              {s}
+              {s === g.star && <span class="sr-only"> ({x.star})</span>}
+            </li>
+          ))}
+        </ul>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .skills { position: relative; }
+
+  .skills__groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+
+  .skills__group {
+    padding: 18px 18px 16px;
+    background: var(--card);
+    border: 1.5px solid rgba(20, 17, 19, .12);
+    border-radius: 14px;
+  }
+  .skills__title { margin: 0 0 12px; color: var(--ink); }
+  .skills__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .skills__chip {
+    padding: 8px 12px;
+    border: 1px solid rgba(20, 17, 19, .14);
+    border-radius: 999px;
+    background: #fff;
+    font: 600 13px/1.25 var(--font-text);
+    color: var(--ink);
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .skills__chip.is-star {
+    border-color: rgba(0, 183, 255, .55);
+    background: rgba(0, 183, 255, .1);
+  }
+
+  @media (max-width: 720px) {
+    .skills__groups { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,88 @@
+---
+// VOL.01 · Ines Cherif · github.com/inesCherif/vol01-manga-portfolio · MIT (code only; art, story and CV are all rights reserved, see LICENSE-ASSETS)
+// Section 6 · Community, all at once: her club, her hackathon, her new club, as three folder cards of the same size
+// (recruiter.css). Her photo as a print with a sticker on the corner (IPS: the club's sticker she was given).
+// The heart-rate wristband sticker sits beside the title.
+import { Image } from 'astro:assets';
+import SectionHead from './SectionHead.astro';
+import Kitten from './Kitten.astro';
+import Prints from './Prints.astro';
+import Emph from '../ui/Emph.astro';
+import { recruiter as r } from '../../data/story';
+
+import cyber from '../../assets/logos/cyber.png';
+import band from '../../assets/frames/recruiter/community/c-2.png';
+
+const x = r.community;
+const logos: Record<string, ImageMetadata> = { cyber };
+const art = import.meta.glob<{ default: ImageMetadata }>('../../assets/frames/recruiter/community/*.png', { eager: true });
+const sticker = (name: string) => art[`../../assets/frames/recruiter/community/${name}.png`].default;
+const pics = import.meta.glob<{ default: ImageMetadata }>('../../assets/photos/*/*.jpg', { eager: true });
+const pic = (path: string) => pics[`../../assets/photos/${path}.jpg`].default;
+---
+
+<section id="community" class="community" aria-labelledby="community-title">
+  <Image src={band} alt={x.bandAlt} widths={[130, 260]} sizes="(max-width: 760px) 66px, 116px" class="community__band lift" draggable="false" data-stamp />
+  <SectionHead id="community-title" kicker={x.kicker} title={x.title} aside={x.aside} />
+  <Kitten id="nap" />
+
+  <ol class="groups">
+    {x.groups.map((g) => (
+      <li id={`community-${g.id}`} class="folder" data-land>
+        <div class="folder__tab">
+          <Image src={logos[g.id]} alt={g.name} height={76} class={`folder__logo community__logo--${g.id}`} />
+          <span class="folder__short">{g.short}</span>
+        </div>
+
+        <article class="folder__card" aria-labelledby={`group-${g.id}`}>
+          <div class="folder__picture">
+            <Prints shots={g.photos.map(({ src, ...ph }) => ({ ...ph, src: pic(src) }))} />
+            <figure class={`folder__sticker community__sticker--${g.sticker}`}>
+              <Image src={sticker(g.sticker)} alt="" widths={[120, 240]} sizes="(max-width: 760px) 76px, 92px" class="lift" draggable="false" data-stamp />
+              <figcaption class="hand">{g.caption}</figcaption>
+            </figure>
+          </div>
+
+          <div class="folder__text">
+            <h3 id={`group-${g.id}`} class="folder__title">{g.name}</h3>
+            <p class="folder__track marker marker--mustard">{g.role}</p>
+            <p class="folder__line">{g.when} · {g.where}</p>
+            <p class="folder__key marked"><Emph text={g.points[0]} /></p>
+            <details class="folder__more">
+              <summary>{r.projects.more}</summary>
+              <ul class="marked">{g.points.slice(1).map((pt) => <li><Emph text={pt} /></li>)}</ul>
+            </details>
+            {g.link && <a class="go go--second folder__go" href={g.link.href}>{g.link.label}<span class="go__arrow" aria-hidden="true">↑</span></a>}
+          </div>
+        </article>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .community { position: relative; padding: 110px var(--edge) 120px; border-top: 1.5px dashed rgba(20, 17, 19, .18); }
+
+  /* the wristband sticker beside the title */
+  .community__band { position: absolute; top: 96px; left: calc(50% - clamp(250px, 24vw, 330px)); width: 116px; height: auto; rotate: -12deg; transition: rotate .35s; }
+  .community__band:hover { rotate: -4deg; }
+
+  .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 30px 26px; max-width: 1280px; margin: 0 auto; padding: 0; list-style: none; }
+
+  /* the logos keep their own background: the IPS tile, the Hive Club badge */
+  .community__logo--ips { border-radius: 8px; }
+  .community__logo--hackcure { border-radius: 50%; }
+
+  /* the medal is tall: narrower, so it does not hide the photo */
+  .community__sticker--medal :global(img) { width: 58px; }
+
+  @media (max-width: 1100px) {
+    .groups { grid-template-columns: minmax(0, 1fr); max-width: 620px; }
+  }
+  @media (max-width: 760px) {
+    .community { padding: 84px 16px 120px; }
+    .community__band { top: 34px; left: auto; right: 16px; width: 52px; }
+    .groups { gap: 40px; }
+    .community__sticker--medal :global(img) { width: 48px; }
+  }
+</style>

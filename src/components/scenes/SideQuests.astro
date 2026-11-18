@@ -1,0 +1,399 @@
+---
+// DENYEL — ORIGIN · Chapter 4 — two-quest manga map (Hotel Chatbot · JobScoutAI)
+import { Image } from 'astro:assets';
+import ChapterHead from '../ui/ChapterHead.astro';
+import Emph from '../ui/Emph.astro';
+import InkBackground from '../ui/InkBackground.astro';
+import { isVerifiedHref, sidequests as q } from '../../data/story';
+
+import land from '../../assets/frames/ch4-sidequests/land.png';
+import compass from '../../assets/frames/ch4-sidequests/ornaments/compass.png';
+import cloud from '../../assets/frames/ch4-sidequests/ornaments/cloud.png';
+import libraryArt from '../../assets/frames/ch4-sidequests/places/library.png';
+import guildArt from '../../assets/frames/ch4-sidequests/places/guild.png';
+
+const walkArt = import.meta.glob<{ default: ImageMetadata }>('../../assets/frames/ch4-sidequests/walk/*.png', { eager: true });
+const steps = Object.keys(walkArt).sort().map((k) => walkArt[k].default);
+
+const placeImages: Record<string, ImageMetadata> = { library: libraryArt, guild: guildArt };
+const art = (place: string) => placeImages[place];
+
+// Map layout in land.png pixels (1408 × 768). Two intentional stops across the valley:
+// harbour → Hotel inn (mid-valley clearing) → JobScout guild (east ridge) → trail exit.
+const W = 1408, H = 768;
+const layout: Record<string, { x: number; y: number; w: number; lx: number; ly: number }> = {
+  // Anchor feet on route clearings; dossier cards sit beside (not on top of) each landmark.
+  library: { x: 470, y: 508, w: 188, lx: 618, ly: 392 },
+  guild: { x: 980, y: 348, w: 188, lx: 760, ly: 188 },
+};
+const harbour = [168, 500];
+const exit = [1180, 680];
+const stops = [harbour, ...q.quests.map(({ place }) => [layout[place].x, layout[place].y]), exit];
+
+const route = stops.reduce((d, p, i) => {
+  if (i === 0) return `M${p[0]} ${p[1]}`;
+  const p0 = stops[i - 2] ?? stops[i - 1], p1 = stops[i - 1], p3 = stops[i + 1] ?? p;
+  const c1 = [p1[0] + (p[0] - p0[0]) / 6, p1[1] + (p[1] - p0[1]) / 6];
+  const c2 = [p[0] - (p3[0] - p1[0]) / 6, p[1] - (p3[1] - p1[1]) / 6];
+  return `${d} C${c1.map(Math.round)} ${c2.map(Math.round)} ${p}`;
+}, '');
+
+const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
+const ornaments = [
+  { src: cloud, x: 360, y: 26, w: 210, depth: 46, cls: 'quests__cloud' },
+  { src: cloud, x: 640, y: 300, w: 150, depth: 60, cls: 'quests__cloud' },
+  { src: compass, x: 1335, y: 112, w: 120, depth: 18, cls: '' },
+];
+---
+
+<section class="scene quests" id="side-quests" data-scene="quests" aria-label={`${q.label}: ${q.title}`}>
+  <InkBackground fixed />
+  <div class="scene__pin quests__pin">
+    <div class="quests__stage" data-part="stage">
+      <div class="quests__cam" data-part="cam">
+        <div class="quests__map" data-part="map" style={`--ar:${W / H}`}>
+          <Image class="quests__land" src={land} alt={q.map} widths={[960, 1408]} sizes="(max-width: 760px) 200vw, 96vw" loading="lazy" />
+
+          <svg class="quests__route" viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+            <defs>
+              <mask id="quests-route-ink" maskUnits="userSpaceOnUse">
+                <path data-part="route-ink" d={route} />
+              </mask>
+            </defs>
+            <path data-part="route" d={route} mask="url(#quests-route-ink)" />
+            {q.quests.map(({ place }) => (
+              <circle
+                class="quests__pin-dot"
+                cx={layout[place].x}
+                cy={layout[place].y}
+                r="10"
+                data-part="pin-dot"
+              />
+            ))}
+          </svg>
+
+          {ornaments.map((o) => (
+            <Image
+              class:list={['quests__ornament', o.cls]}
+              src={o.src}
+              alt=""
+              widths={[o.w * 2]}
+              sizes={`${Math.round((o.w / W) * 100)}vw`}
+              loading="lazy"
+              style={`left:${pct(o.x - o.w / 2, W)};top:${pct(o.y, H)};width:${pct(o.w, W)}`}
+              data-depth={o.depth}
+            />
+          ))}
+
+          {q.quests.map(({ place, alt }, i) => {
+            const at = layout[place];
+            return (
+              <div
+                class="quests__place"
+                data-part="place"
+                data-x={at.x}
+                data-y={at.y}
+                data-depth={8 + i * 4}
+                style={`left:${pct(at.x - at.w / 2, W)};bottom:${pct(H - at.y - at.w * 0.12, H)};width:${pct(at.w, W)}`}
+              >
+                <Image src={art(place)} alt={alt} widths={[240, 420]} sizes="16vw" loading="eager" />
+                <b class="quests__seal" data-part="seal" aria-hidden="true">{i + 1}</b>
+              </div>
+            );
+          })}
+
+          <div class="quests__ines" data-part="ines" role="img" aria-label="Denyel walking the side-quest route">
+            {steps.map((src) => (
+              <Image class="quests__step" data-part="step" src={src} alt="" widths={[120, 240, 480]} sizes="80px" loading="lazy" />
+            ))}
+          </div>
+
+          <ol class="quests__labels" data-part="labels">
+            {q.quests.map((quest, i) => (
+              <li
+                class="quests__label quests__inked"
+                data-part="label"
+                style={`left:${pct(layout[quest.place].lx, W)};top:${pct(layout[quest.place].ly, H)}`}
+              >
+                <div class="quests__top">
+                  <small>{i + 1} · {quest.kind}</small>
+                </div>
+                <h3>{quest.name}</h3>
+                <p><Emph text={quest.line} /></p>
+                <p class="quests__stack">{quest.stack}</p>
+                <button type="button" class="quests__open" data-open={quest.id}>
+                  {q.explore}
+                </button>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="quests__leaf" data-part="leaf" aria-hidden="true">
+      <div class="quests__front" data-part="front"><InkBackground /></div>
+      <div class="quests__flap"><div class="quests__back" data-part="back"><InkBackground /></div></div>
+    </div>
+
+    <ChapterHead label={q.label} title={q.title} sub={q.sub} />
+  </div>
+
+  <div class="quests__after">
+    <ol class="quests__key" aria-label={q.keyTitle}>
+      {q.quests.map((quest, i) => (
+        <li class="quests__inked" data-part="key">
+          <Image src={art(quest.place)} alt="" widths={[160]} sizes="72px" loading="lazy" />
+          <div>
+            <small>{i + 1} · {quest.kind}</small>
+            <h3>{quest.name}</h3>
+            <p><Emph text={quest.line} /></p>
+            <p class="quests__stack">{quest.stack}</p>
+            <button type="button" class="quests__open" data-open={quest.id}>{q.explore}</button>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+
+  {q.quests.map((quest) => {
+    const hasRepo = Boolean(quest.repo && isVerifiedHref(quest.repo));
+    return (
+      <dialog class="quests__dossier" data-dossier={quest.id} aria-labelledby={`dossier-title-${quest.id}`}>
+        <form method="dialog" class="quests__dossier-card">
+          <header class="quests__dossier-head">
+            <p class="label">{quest.kind}</p>
+            <h3 id={`dossier-title-${quest.id}`}>{quest.name}</h3>
+            <button type="submit" class="quests__dossier-x" value="close" aria-label={q.close}>×</button>
+          </header>
+
+          <p class="quests__dossier-line marked"><Emph text={quest.line} /></p>
+
+          <section>
+            <h4 class="label">Problem</h4>
+            <p>{quest.problem}</p>
+          </section>
+          <section>
+            <h4 class="label">What it does</h4>
+            <p class="marked"><Emph text={quest.does} /></p>
+          </section>
+          <section>
+            <h4 class="label">Workflow</h4>
+            <ol class="quests__flow">
+              {quest.workflow.map((step) => <li>{step}</li>)}
+            </ol>
+          </section>
+          <section>
+            <h4 class="label">Stack</h4>
+            <p>{quest.stack}</p>
+          </section>
+          <section>
+            <h4 class="label">Challenges</h4>
+            <ul class="quests__challenges">
+              {quest.challenges.map((c) => <li>{c}</li>)}
+            </ul>
+          </section>
+
+          <footer class="quests__dossier-foot">
+            {hasRepo && (
+              <a class="quests__repo" href={quest.repo} target="_blank" rel="noopener noreferrer">
+                {q.repo} ↗
+              </a>
+            )}
+            <button type="submit" class="quests__dossier-close" value="close">{q.continue}</button>
+          </footer>
+        </form>
+      </dialog>
+    );
+  })}
+</section>
+
+<style>
+  .quests { clip-path: inset(0); color: var(--ink); }
+  .quests__stage { position: absolute; inset: 0; background: var(--paper); overflow: hidden; }
+
+  .quests__cam { position: absolute; inset: 0; display: grid; place-items: center; padding-top: 56px; }
+  .quests__map {
+    position: relative; container-type: inline-size;
+    width: min(100vw - 2 * var(--edge), (100svh - 84px) * var(--ar));
+    aspect-ratio: var(--ar); rotate: -0.6deg;
+  }
+  .quests__land { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+  .quests__route { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .quests__route path { fill: none; stroke-linecap: round; }
+  .quests__route [data-part="route"] { stroke: var(--rose-deep); stroke-width: 6; stroke-dasharray: 1 14; }
+  .quests__route [data-part="route-ink"] { stroke: #fff; stroke-width: 28; }
+  .quests__pin-dot {
+    fill: var(--paper);
+    stroke: var(--rose-deep);
+    stroke-width: 3;
+    opacity: 0;
+  }
+  .quests__pin-dot.is-lit { opacity: 1; }
+
+  .quests__ornament, .quests__place, .quests__ines { position: absolute; }
+  .quests__ornament { height: auto; max-width: none; pointer-events: none; }
+  .quests__place {
+    z-index: 4; pointer-events: none;
+    filter: drop-shadow(0 2px 0 rgba(255,255,255,.85)) drop-shadow(0 10px 14px rgba(20, 17, 19, .28));
+  }
+  .quests__place :global(img) { width: 100%; height: auto; max-width: none; display: block; }
+  .quests__cloud { z-index: 3; opacity: .92; }
+
+  .quests__seal {
+    position: absolute; left: 50%; top: 6%; width: 2.8em; aspect-ratio: 1; margin-left: -1.4em;
+    display: none; place-items: center; border-radius: 50%;
+    background: var(--rose); border: 2px solid var(--ink); font: 400 14px/1 var(--font-title);
+  }
+
+  .quests__ines {
+    --w: 5.8%;
+    z-index: 5; width: var(--w); aspect-ratio: 480 / 720; margin: calc(var(--w) * -1.425) 0 0 calc(var(--w) * -.51);
+    transform-origin: 51% 95%; pointer-events: none;
+  }
+  .quests__step { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: contain; visibility: hidden; }
+  .quests__step:first-child { visibility: visible; }
+
+  .quests__inked {
+    --inked: 130%;
+    -webkit-mask: linear-gradient(100deg, #000 calc(var(--inked) - 18%), transparent var(--inked));
+            mask: linear-gradient(100deg, #000 calc(var(--inked) - 18%), transparent var(--inked));
+  }
+
+  .quests__labels { list-style: none; margin: 0; padding: 0; }
+  .quests__label {
+    position: absolute; z-index: 6; width: min(236px, 18cqw);
+    padding: 12px 14px 14px; background: var(--paper);
+    border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
+    pointer-events: auto;
+  }
+  /* Soft leader toward the matching landmark / route pin */
+  .quests__label::before {
+    content: '';
+    position: absolute;
+    width: 28px; height: 28px;
+    border-left: 2px dotted var(--rose-deep);
+    border-bottom: 2px dotted var(--rose-deep);
+    opacity: .7;
+    pointer-events: none;
+  }
+  .quests__label:nth-child(odd) { rotate: -1.2deg; }
+  .quests__label:nth-child(odd)::before {
+    left: -18px; bottom: -6px; rotate: 18deg; transform-origin: bottom left;
+  }
+  .quests__label:nth-child(even) { rotate: 1deg; }
+  .quests__label:nth-child(even)::before {
+    right: -16px; bottom: -8px; rotate: -28deg; transform-origin: bottom right;
+    border-left: 0; border-right: 2px dotted var(--rose-deep);
+  }
+  .quests small {
+    display: block; font: 800 10px/1.2 var(--font-text); letter-spacing: .16em; text-transform: uppercase; color: var(--rose-deep);
+  }
+  .quests h3 { margin: 6px 0 8px; font: 400 clamp(18px, 1.5cqw, 24px)/1.1 var(--font-title); }
+  .quests__label p, .quests__key p { margin: 0; font: 600 13px/1.4 var(--font-text); }
+  .quests :global(em) { font-style: normal; font-weight: 800; color: var(--rose-deep); }
+  .quests .quests__stack { margin-top: 8px; font: 500 11px/1.35 var(--font-text); opacity: .78; }
+  .quests__top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .quests__open {
+    margin-top: 12px;
+    display: inline-flex; align-items: center;
+    min-height: 34px; padding: 0 12px;
+    border: 1.5px solid var(--ink); background: var(--ink); color: var(--paper);
+    font: 800 11px/1 var(--font-text); letter-spacing: .12em; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .quests__open:hover, .quests__open:focus-visible { background: var(--rose-deep); border-color: var(--rose-deep); }
+  .quests__open:focus-visible { outline: 3px solid var(--rose); outline-offset: 2px; }
+
+  .quests__leaf { position: absolute; inset: 0; z-index: 8; visibility: hidden; }
+  .quests__front, .quests__flap, .quests__back { position: absolute; inset: 0; }
+  .quests__flap { filter: drop-shadow(-8px -6px 22px rgba(20, 17, 19, .5)); }
+  .quests__back { background: var(--paper); }
+  .quests__back :global(.ink-bg) { opacity: .13; scale: -1 1; mix-blend-mode: multiply; }
+
+  .quests__after { position: relative; background: var(--paper); padding: 0 var(--edge) 72px; display: grid; justify-items: center; }
+  .quests__key { display: none; }
+
+  /* Dossiers */
+  .quests__dossier {
+    position: fixed; inset: 0; z-index: 90; margin: 0; max-width: none; max-height: none;
+    border: 0; padding: 24px; background: rgba(11, 21, 36, .55);
+  }
+  .quests__dossier::backdrop { background: transparent; }
+  .quests__dossier-card {
+    position: relative;
+    width: min(640px, 100%);
+    max-height: min(88svh, 820px);
+    margin: 4vh auto 0;
+    overflow: auto;
+    padding: 28px 26px 22px;
+    background: var(--paper);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    box-shadow: 10px 10px 0 rgba(11, 21, 36, .35);
+  }
+  .quests__dossier-head { display: grid; gap: 4px; padding-right: 36px; margin-bottom: 12px; }
+  .quests__dossier-head h3 { margin: 0; font: 400 clamp(28px, 4vw, 36px)/1.05 var(--font-title); }
+  .quests__dossier-x {
+    position: absolute; top: 14px; right: 14px;
+    width: 40px; height: 40px; border: 0; background: transparent;
+    font: 400 32px/1 var(--font-title); cursor: pointer; color: var(--ink);
+  }
+  .quests__dossier-x:hover, .quests__dossier-x:focus-visible { color: var(--rose-deep); }
+  .quests__dossier-line { margin: 0 0 18px; font: 600 16px/1.5 var(--font-text); }
+  .quests__dossier-card section { margin: 0 0 16px; }
+  .quests__dossier-card h4 { margin: 0 0 6px; }
+  .quests__dossier-card p { margin: 0; font: 500 14.5px/1.55 var(--font-text); }
+  .quests__flow, .quests__challenges {
+    margin: 0; padding: 0 0 0 18px;
+    display: grid; gap: 8px;
+    font: 500 14.5px/1.5 var(--font-text);
+  }
+  .quests__flow li::marker, .quests__challenges li::marker { color: var(--rose-deep); }
+  .quests__dossier-foot {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    margin-top: 8px; padding-top: 16px; border-top: 1.5px dashed rgba(20, 17, 19, .2);
+  }
+  .quests__repo {
+    font: 800 12px/1 var(--font-text); letter-spacing: .14em; text-transform: uppercase;
+    color: var(--ink); text-decoration: underline; text-decoration-color: var(--rose); text-underline-offset: 3px;
+  }
+  .quests__dossier-close {
+    margin-left: auto;
+    min-height: 40px; padding: 0 14px;
+    border: 1.5px solid var(--ink); background: var(--ink); color: var(--paper);
+    font: 800 11px/1 var(--font-text); letter-spacing: .12em; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .quests__dossier-close:hover, .quests__dossier-close:focus-visible { background: var(--rose-deep); border-color: var(--rose-deep); }
+
+  @media (max-width: 760px) {
+    .quests__cam { display: block; padding: 0; }
+    .quests__map { position: absolute; left: 0; top: 84px; width: auto; height: calc(100svh - 110px); rotate: none; }
+    .quests__labels { display: none; }
+    .quests__seal { display: grid; }
+    .quests__ines { --w: 7%; }
+    .quests__after { padding-top: 8px; }
+    .quests__key {
+      list-style: none; margin: 0; padding: 0 0 0 4px; width: 100%; display: grid; gap: 28px;
+      border-left: 3px dotted var(--rose-deep);
+    }
+    .quests__key li { display: grid; grid-template-columns: 72px 1fr; gap: 14px; align-items: start; margin-left: -18px; }
+    .quests__key :global(img) {
+      width: 72px; height: 72px; object-fit: contain; background: var(--paper); border: 1.5px solid var(--ink);
+    }
+    .quests__key h3 { font-size: 22px; margin: 4px 0 6px; }
+    .quests__key small { font-size: 10px; }
+    .quests__key p { font-size: 14px; }
+    .quests__key .quests__stack { font-size: 12px; margin-top: 6px; }
+    .quests__dossier { padding: 12px; }
+    .quests__dossier-card { margin-top: 2vh; padding: 22px 16px 18px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quests :global(.chapter-head), .quests__ines { display: none; }
+    .quests__inked { --inked: 130%; -webkit-mask: none; mask: none; }
+    .quests__pin-dot { opacity: 1; }
+  }
+</style>
